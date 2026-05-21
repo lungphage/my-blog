@@ -15,7 +15,29 @@
 	--box-shadow:
 		0 2px 6px rgba(var(--gray), 25%), 0 8px 24px rgba(var(--gray), 33%),
 		0 16px 32px rgba(var(--gray), 33%);
+	--header-bg: #fff;
+	--card-bg: #fff;
+	--card-border: #e9d8fd;
+	--footer-bg: linear-gradient(var(--gray-gradient)) no-repeat;
 }
+
+[data-theme="dark"] {
+	--accent: #a78bfa;
+	--accent-dark: #c4b5fd;
+	--black: 255, 255, 255;
+	--gray: 160, 170, 200;
+	--gray-light: 50, 55, 75;
+	--gray-dark: 220, 225, 240;
+	--gray-gradient: rgba(30, 32, 48, 100%), #1a1a2e;
+	--box-shadow:
+		0 2px 6px rgba(0, 0, 0, 40%), 0 8px 24px rgba(0, 0, 0, 50%),
+		0 16px 32px rgba(0, 0, 0, 50%);
+	--header-bg: #1e1e2e;
+	--card-bg: #252540;
+	--card-border: #3a3a5c;
+	--footer-bg: linear-gradient(rgba(30, 32, 48, 100%), #1a1a2e) no-repeat;
+}
+
 body {
 	font-family: var(--font-atkinson);
 	margin: 0;
@@ -99,9 +121,12 @@ code {
 pre {
 	padding: 1.5em;
 	border-radius: 8px;
+	background: #1a1a2e;
+	color: #c9d1f7;
 }
 pre > code {
 	all: unset;
+	background: transparent;
 }
 blockquote {
 	border-left: 4px solid var(--accent);
@@ -130,12 +155,27 @@ hr {
 	height: 1px;
 	width: 1px;
 	overflow: hidden;
-	/* IE6, IE7 - a 0 height clip, off to the bottom right of the visible 1px box */
 	clip: rect(1px 1px 1px 1px);
-	/* maybe deprecated but we need to support legacy browsers */
 	clip: rect(1px, 1px, 1px, 1px);
-	/* modern browsers, clip-path works inwards from each corner */
 	clip-path: inset(50%);
-	/* added line to stop words getting smushed together (as they go onto separate lines and some screen readers do not understand line feeds as a space */
 	white-space: nowrap;
+}
+
+/* Dark mode toggle */
+.theme-toggle {
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 0.5em;
+	display: flex;
+	align-items: center;
+	color: rgb(var(--gray-dark));
+	transition: color 0.2s;
+}
+.theme-toggle:hover {
+	color: var(--accent);
+}
+.theme-toggle svg {
+	width: 20px;
+	height: 20px;
 }

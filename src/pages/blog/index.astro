@@ -120,6 +120,18 @@ const posts = (await getCollection('blog')).sort(
 			<h1 class="page-title">博客</h1>
 			<p class="page-subtitle">记录学习与研究的点滴</p>
 			<ul class="blog-list">
+				<li class="blog-card">
+					<a href="/fungal_mag_funannotate.html">
+						<div class="card-placeholder">
+							<span>🍄</span>
+						</div>
+						<div class="card-content">
+							<h3>真菌 MAG 注释流程 — funannotate</h3>
+							<p class="date">2026年5月21日</p>
+							<p class="desc">基于 funannotate v1.8.17 + Singularity 容器环境，适用于宏基因组 Binning 后真菌 MAG 的完整注释流程</p>
+						</div>
+					</a>
+				</li>
 				{
 					posts.map((post) => (
 						<li class="blog-card">

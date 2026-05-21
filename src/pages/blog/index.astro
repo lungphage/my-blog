@@ -1,15 +1,42 @@
 ---
-import { Image } from 'astro:assets';
-import { getCollection } from 'astro:content';
 import BaseHead from '../../components/BaseHead.astro';
 import Footer from '../../components/Footer.astro';
-import FormattedDate from '../../components/FormattedDate.astro';
 import Header from '../../components/Header.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
 
-const posts = (await getCollection('blog')).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-);
+const categories = [
+	{ id: 'all', label: '全部' },
+	{ id: 'software', label: '软件安装' },
+	{ id: 'paper', label: '文献阅读' },
+	{ id: 'thoughts', label: '想法' },
+];
+
+const articles = [
+	{
+		title: '真菌 MAG 注释流程 — funannotate',
+		desc: '基于 funannotate v1.8.17 + Singularity 容器环境，适用于宏基因组 Binning 后真菌 MAG 的完整注释流程',
+		date: '2026年5月21日',
+		url: '/fungal_mag_funannotate.html',
+		icon: '🍄',
+		category: 'software',
+	},
+	{
+		title: '批判性问题 | HUNT肠道菌群GWAS研究',
+		desc: '对 HUNT 队列肠道菌群 GWAS 研究的批判性分析与关键问题梳理',
+		date: '2026年5月21日',
+		url: '/HUNT_microbiota_critical_questions_claude.html',
+		icon: '❓',
+		category: 'paper',
+	},
+	{
+		title: 'HUNT 研究：宿主遗传因素与肠道微生物组成 — 论文详细总结',
+		desc: 'HUNT 研究中宿主遗传因素对肠道微生物组影响的详细论文总结',
+		date: '2026年5月21日',
+		url: '/HUNT_microbiota_summary_deepseek.html',
+		icon: '📖',
+		category: 'paper',
+	},
+];
 ---
 
 <!doctype html>
@@ -20,10 +47,45 @@ const posts = (await getCollection('blog')).sort(
 			main {
 				width: 960px;
 			}
+			.page-title {
+				margin-bottom: 0.3em;
+			}
+			.page-subtitle {
+				color: rgb(var(--gray));
+				margin-bottom: 1.5em;
+				font-size: 1.05em;
+			}
+			.tabs {
+				display: flex;
+				gap: 8px;
+				margin-bottom: 2em;
+				flex-wrap: wrap;
+			}
+			.tab {
+				padding: 8px 20px;
+				border-radius: 8px;
+				border: 1px solid var(--card-border);
+				background: var(--card-bg);
+				color: rgb(var(--gray-dark));
+				cursor: pointer;
+				font-size: 0.92em;
+				font-weight: 600;
+				transition: all 0.2s;
+				text-decoration: none;
+			}
+			.tab:hover {
+				border-color: var(--accent);
+				color: var(--accent);
+			}
+			.tab.active {
+				background: linear-gradient(135deg, #805ad5, #553c9a);
+				color: #fff;
+				border-color: transparent;
+			}
 			.blog-list {
 				display: flex;
 				flex-direction: column;
-				gap: 2rem;
+				gap: 1.5rem;
 				list-style-type: none;
 				margin: 0;
 				padding: 0;
@@ -31,73 +93,73 @@ const posts = (await getCollection('blog')).sort(
 			.blog-card {
 				background: var(--card-bg);
 				border: 1px solid var(--card-border);
-				border-radius: 16px;
+				border-radius: 14px;
 				overflow: hidden;
 				transition: transform 0.2s, box-shadow 0.2s, background 0.3s, border-color 0.3s;
 			}
 			.blog-card:hover {
-				transform: translateY(-4px);
+				transform: translateY(-3px);
 				box-shadow: var(--box-shadow);
 			}
 			.blog-card a {
 				display: flex;
-				text-decoration: none;
-				color: inherit;
-			}
-			.card-image {
-				width: 320px;
-				min-height: 200px;
-				flex-shrink: 0;
-				overflow: hidden;
-			}
-			.card-image img {
-				width: 100%;
-				height: 100%;
-				object-fit: cover;
-				border-radius: 0;
-				margin: 0;
-			}
-			.card-placeholder {
-				width: 320px;
-				min-height: 200px;
-				flex-shrink: 0;
-				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-				display: flex;
 				align-items: center;
-				justify-content: center;
+				text-decoration: none !important;
+				color: inherit;
+				padding: 1.2rem 1.5rem;
+				gap: 1.2rem;
 			}
-			.card-placeholder span {
-				font-size: 3em;
+			.card-icon {
+				font-size: 2.2em;
+				width: 60px;
+				height: 60px;
+				line-height: 60px;
+				text-align: center;
+				background: linear-gradient(135deg, #f3e8ff, #e9d8fd);
+				border-radius: 12px;
+				flex-shrink: 0;
 			}
 			.card-content {
-				padding: 1.5rem 2rem;
-				display: flex;
-				flex-direction: column;
-				justify-content: center;
+				flex: 1;
+				min-width: 0;
 			}
 			.card-content h3 {
-				margin: 0 0 0.5rem 0;
-				font-size: 1.4em;
+				margin: 0 0 0.3rem 0;
+				font-size: 1.15em;
 				color: rgb(var(--black));
 			}
-			.card-content .date {
-				margin: 0 0 0.8rem 0;
-				color: rgb(var(--gray));
-				font-size: 0.9em;
+			.card-meta {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+				margin-bottom: 0.4rem;
 			}
-			.card-content .desc {
+			.card-date {
+				color: rgb(var(--gray));
+				font-size: 0.85em;
+			}
+			.card-badge {
+				display: inline-block;
+				padding: 2px 10px;
+				border-radius: 10px;
+				font-size: 0.72em;
+				font-weight: 600;
+				background: #e9d8fd;
+				color: #553c9a;
+			}
+			.card-desc {
 				margin: 0;
 				color: rgb(var(--gray));
-				font-size: 0.95em;
-				line-height: 1.6;
+				font-size: 0.9em;
+				line-height: 1.5;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				display: -webkit-box;
+				-webkit-line-clamp: 2;
+				-webkit-box-orient: vertical;
 			}
-			.page-title {
-				margin-bottom: 0.5em;
-			}
-			.page-subtitle {
-				color: rgb(var(--gray));
-				margin-bottom: 2em;
-				font-size: 1.1em;
+			[data-theme="dark"] .card-icon {
+				background: linear-gradient(135deg, #2d1b69, #3a2a6e);
 			}
 			@media (max-width: 720px) {
 				main {
@@ -105,11 +167,7 @@ const posts = (await getCollection('blog')).sort(
 				}
 				.blog-card a {
 					flex-direction: column;
-				}
-				.card-image,
-				.card-placeholder {
-					width: 100%;
-					min-height: 180px;
+					text-align: center;
 				}
 			}
 		</style>
@@ -119,47 +177,49 @@ const posts = (await getCollection('blog')).sort(
 		<main>
 			<h1 class="page-title">博客</h1>
 			<p class="page-subtitle">记录学习与研究的点滴</p>
+			<div class="tabs">
+				{categories.map((cat) => (
+					<button class={`tab${cat.id === 'all' ? ' active' : ''}`} data-category={cat.id}>
+						{cat.label}
+					</button>
+				))}
+			</div>
 			<ul class="blog-list">
-				<li class="blog-card">
-					<a href="/fungal_mag_funannotate.html">
-						<div class="card-placeholder">
-							<span>🍄</span>
-						</div>
-						<div class="card-content">
-							<h3>真菌 MAG 注释流程 — funannotate</h3>
-							<p class="date">2026年5月21日</p>
-							<p class="desc">基于 funannotate v1.8.17 + Singularity 容器环境，适用于宏基因组 Binning 后真菌 MAG 的完整注释流程</p>
-						</div>
-					</a>
-				</li>
-				{
-					posts.map((post) => (
-						<li class="blog-card">
-							<a href={`/blog/${post.id}/`}>
-								{post.data.heroImage ? (
-									<div class="card-image">
-										<Image width={320} height={200} src={post.data.heroImage} alt="" />
-									</div>
-								) : (
-									<div class="card-placeholder">
-										<span>📄</span>
-									</div>
-								)}
-								<div class="card-content">
-									<h3>{post.data.title}</h3>
-									<p class="date">
-										<FormattedDate date={post.data.pubDate} />
-									</p>
-									{post.data.description && (
-										<p class="desc">{post.data.description}</p>
-									)}
+				{articles.map((article) => (
+					<li class="blog-card" data-category={article.category}>
+						<a href={article.url}>
+							<div class="card-icon">{article.icon}</div>
+							<div class="card-content">
+								<h3>{article.title}</h3>
+								<div class="card-meta">
+									<span class="card-date">{article.date}</span>
+									<span class="card-badge">
+										{article.category === 'software' ? '软件安装' : article.category === 'paper' ? '文献阅读' : '想法'}
+									</span>
 								</div>
-							</a>
-						</li>
-					))
-				}
+								<p class="card-desc">{article.desc}</p>
+							</div>
+						</a>
+					</li>
+				))}
 			</ul>
 		</main>
 		<Footer />
+		<script>
+			document.querySelectorAll('.tab').forEach((tab) => {
+				tab.addEventListener('click', () => {
+					document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
+					tab.classList.add('active');
+					const cat = tab.getAttribute('data-category');
+					document.querySelectorAll('.blog-card').forEach((card) => {
+						if (cat === 'all' || card.getAttribute('data-category') === cat) {
+							(card as HTMLElement).style.display = '';
+						} else {
+							(card as HTMLElement).style.display = 'none';
+						}
+					});
+				});
+			});
+		</script>
 	</body>
 </html>

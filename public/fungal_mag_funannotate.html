@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>真菌 MAG 注释流程 — funannotate</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", "Microsoft YaHei", sans-serif; background: #f7f5ff; color: #2d3748; margin: 0; padding: 0; }
+  .container { max-width: 960px; margin: 0 auto; padding: 36px 24px; }
+
+  h1 { color: #44337a; font-size: 1.85em; border-bottom: 4px solid #805ad5; padding-bottom: 14px; margin-bottom: 6px; }
+  .subtitle { color: #718096; margin-bottom: 28px; font-size: 0.95em; }
+  h2 { color: #553c9a; margin-top: 0; font-size: 1.1em; }
+  h3 { color: #44337a; margin-top: 18px; margin-bottom: 8px; font-size: 1em; }
+
+  pre { background: #1a1a2e; color: #c9d1f7; padding: 15px 18px; border-radius: 8px; overflow-x: auto; font-size: 0.85em; line-height: 1.75; margin: 10px 0; }
+  code { background: #e9d8fd; color: #553c9a; padding: 2px 6px; border-radius: 4px; font-size: 0.87em; }
+
+  .note  { background: #f3e8ff; border-left: 4px solid #805ad5; padding: 11px 15px; border-radius: 4px; margin: 10px 0; font-size: 0.91em; }
+  .warn  { background: #fffaf0; border-left: 4px solid #dd6b20; padding: 11px 15px; border-radius: 4px; margin: 10px 0; font-size: 0.91em; }
+  .ok    { background: #f0fff4; border-left: 4px solid #38a169; padding: 11px 15px; border-radius: 4px; margin: 10px 0; font-size: 0.91em; }
+  .err   { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 11px 15px; border-radius: 4px; margin: 10px 0; font-size: 0.91em; }
+
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.88em; }
+  th { background: #553c9a; color: #fff; padding: 9px 13px; text-align: left; }
+  td { padding: 8px 13px; border-bottom: 1px solid #e9d8fd; vertical-align: top; }
+  tr:nth-child(even) { background: #faf5ff; }
+
+  .card { background: #fff; border: 1px solid #e9d8fd; border-radius: 12px; padding: 24px 28px; margin: 22px 0; box-shadow: 0 2px 12px rgba(128,90,213,0.07); }
+  .card-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 16px; }
+  .num { background: #805ad5; color: #fff; border-radius: 50%; width: 36px; height: 36px; line-height: 36px; text-align: center; font-weight: 700; font-size: 1.1em; flex-shrink: 0; margin-top: 2px; }
+  .num-gray { background: #a0aec0; }
+  .hd h2 { margin: 0 0 3px 0; }
+  .hd p  { margin: 0; color: #718096; font-size: 0.84em; }
+
+  .toc { background: #fff; border: 1px solid #d6bcfa; border-radius: 10px; padding: 16px 22px; margin-bottom: 30px; }
+  .toc ol { margin: 8px 0 0 0; padding-left: 22px; }
+  .toc li { margin: 5px 0; font-size: 0.91em; }
+  .toc a { color: #553c9a; text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+
+  .flow { display: flex; align-items: center; flex-wrap: wrap; gap: 0; margin: 18px 0 24px; }
+  .fb { background: #f3e8ff; border: 1.5px solid #d6bcfa; border-radius: 8px; padding: 7px 14px; font-size: 0.85em; white-space: nowrap; text-align: center; line-height: 1.3; }
+  .fb strong { display: block; color: #44337a; }
+  .fb span { color: #718096; font-size: 0.82em; }
+  .fa { color: #805ad5; font-size: 1.3em; padding: 0 5px; }
+  .fb-act { background: #553c9a; border-color: #44337a; }
+  .fb-act strong, .fb-act span { color: #fff; }
+
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.76em; font-weight: 600; margin-left: 6px; vertical-align: middle; }
+  .b-req { background: #c6f6d5; color: #22543d; }
+  .b-opt { background: #fefcbf; color: #744210; }
+  .b-key { background: #e9d8fd; color: #44337a; }
+
+  .cmd-template { background: #2d1b69; border: 1px solid #553c9a; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .cmd-template pre { background: transparent; padding: 0; margin: 0; color: #e9d8fd; }
+  .cmd-label { font-size: 0.75em; color: #b794f4; font-weight: 600; margin-bottom: 6px; letter-spacing: 0.05em; }
+
+  .io-row { display: flex; gap: 16px; margin: 10px 0; }
+  .io-box { flex: 1; border-radius: 8px; padding: 10px 14px; font-size: 0.87em; }
+  .io-in  { background: #ebf8ff; border: 1px solid #90cdf4; }
+  .io-out { background: #f0fff4; border: 1px solid #9ae6b4; }
+  .io-box strong { display: block; margin-bottom: 4px; color: #2c5282; }
+  .io-out strong { color: #276749; }
+
+  .busco-grid { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
+  .bg-item { background: #faf5ff; border: 1px solid #d6bcfa; border-radius: 6px; padding: 8px 12px; font-size: 0.84em; flex: 1; min-width: 160px; }
+  .bg-item strong { color: #44337a; display: block; margin-bottom: 3px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>真菌 MAG 注释流程</h1>
+<p class="subtitle">基于 funannotate v1.8.17 + Singularity 容器环境，适用于宏基因组 Binning 后真菌 MAG 的完整注释流程</p>
+
+<!-- 流程图 -->
+<div class="flow">
+  <div class="fb"><strong>MAG fasta</strong><span>binning 产出</span></div>
+  <span class="fa">→</span>
+  <div class="fb"><strong>EukCC</strong><span>质量评估</span></div>
+  <span class="fa">→</span>
+  <div class="fb fb-act"><strong>clean</strong><span>清理序列</span></div>
+  <span class="fa">→</span>
+  <div class="fb fb-act"><strong>sort</strong><span>排序重命名</span></div>
+  <span class="fa">→</span>
+  <div class="fb fb-act"><strong>mask</strong><span>重复屏蔽</span></div>
+  <span class="fa">→</span>
+  <div class="fb fb-act"><strong>predict</strong><span>基因预测</span></div>
+  <span class="fa">→</span>
+  <div class="fb fb-act"><strong>annotate</strong><span>功能注释</span></div>
+  <span class="fa">→</span>
+  <div class="fb"><strong>下游分析</strong><span>比较/代谢</span></div>
+</div>
+
+<div class="toc">
+  <strong>目录</strong>
+  <ol>
+    <li><a href="#env">运行环境与基础命令</a></li>
+    <li><a href="#s0">Step 0 — EukCC 质量评估</a></li>
+    <li><a href="#s1">Step 1 — funannotate clean</a></li>
+    <li><a href="#s2">Step 2 — funannotate sort</a></li>
+    <li><a href="#s3">Step 3 — funannotate mask</a></li>
+    <li><a href="#s4">Step 4 — funannotate train（可选）</a></li>
+    <li><a href="#s5">Step 5 — funannotate predict</a></li>
+    <li><a href="#s6">Step 6 — funannotate update（可选）</a></li>
+    <li><a href="#s7">Step 7 — funannotate annotate</a></li>
+    <li><a href="#s8">Step 8 — funannotate compare（多基因组）</a></li>
+    <li><a href="#output">关键输出文件说明</a></li>
+    <li><a href="#busco">BUSCO 数据库选择</a></li>
+  </ol>
+</div>
+
+<!-- ===== 环境 ===== -->
+<div class="card" id="env">
+<div class="card-header">
+  <div class="num num-gray">⚙</div>
+  <div class="hd"><h2>运行环境与基础命令模板</h2><p>本流程所有 funannotate 命令均使用以下 Singularity 模板</p></div>
+</div>
+
+<table>
+  <tr><th>项目</th><th>路径/说明</th></tr>
+  <tr><td>funannotate 容器</td><td><code>~/soft/funannotate_latest.sif</code></td></tr>
+  <tr><td>funannotate 可执行文件</td><td>容器内 <code>/venv/bin/funannotate</code></td></tr>
+  <tr><td>GeneMark-ES/ET 目录</td><td><code>/home/liuzifeng/soft/genemark/gmes_linux_64_4</code></td></tr>
+  <tr><td>GeneMark 许可证</td><td><code>~/.gm_key</code></td></tr>
+  <tr><td>Perl 模块目录</td><td><code>~/perl5/lib/perl5/</code></td></tr>
+</table>
+
+<div class="cmd-template">
+  <div class="cmd-label">▶ 简写命令（clean / sort / mask / train / update / annotate / compare）</div>
+  <pre>singularity exec ~/soft/funannotate_latest.sif \
+    /venv/bin/funannotate &lt;子命令&gt; [参数...]</pre>
+</div>
+
+<div class="cmd-template" style="margin-top:10px;">
+  <div class="cmd-label">▶ predict 专用命令（需要 GeneMark PATH，仅此步骤使用）</div>
+  <pre>singularity exec ~/soft/funannotate_latest.sif \
+    bash -c 'export PATH=/home/liuzifeng/soft/genemark/gmes_linux_64_4:$PATH \
+             && /venv/bin/funannotate "$@"' \
+    -- predict [参数...]</pre>
+</div>
+
+<div class="note">
+  <strong>为什么 predict 要用长命令：</strong>GeneMark-ES/ET（<code>gmes_petap.pl</code>）只在 predict 阶段被调用，其他步骤均不涉及 GeneMark，直接用简写即可。<br>
+  <code>bash -c '...' -- "$@"</code> 将 GeneMark 目录前置到 PATH 同时保留容器原有 <code>/venv/bin</code>，不用 <code>--env</code> 是因为它会覆盖整个容器 PATH。
+</div>
+</div>
+
+<!-- ===== Step 0 ===== -->
+<div class="card" id="s0">
+<div class="card-header">
+  <div class="num num-gray">0</div>
+  <div class="hd"><h2>EukCC — 真菌 MAG 质量评估 <span class="badge b-req">建议先做</span></h2>
+  <p>评估真核 MAG 的完整性与污染率，过滤低质量 bin</p></div>
+</div>
+
+<pre>eukcc folder \
+    --out eukcc_out/ \
+    --threads 16 \
+    bins/</pre>
+
+<p>过滤标准（MIMAG）：</p>
+<table>
+  <tr><th>等级</th><th>完整性</th><th>污染率</th><th>建议</th></tr>
+  <tr><td>高质量 HQ</td><td>≥ 90%</td><td>≤ 5%</td><td>可直接注释</td></tr>
+  <tr><td>中质量 MQ</td><td>≥ 50%</td><td>≤ 10%</td><td>可注释，结果不完整</td></tr>
+  <tr><td>低质量 LQ</td><td>&lt; 50%</td><td>—</td><td>一般丢弃</td></tr>
+</table>
+
+<div class="note">
+  也可用 BUSCO 粗估完整性：<br>
+  <code>busco -i mag.fasta -l fungi_odb10 -o busco_qc -m genome --cpu 16</code>
+</div>
+</div>
+
+<!-- ===== Step 1 ===== -->
+<div class="card" id="s1">
+<div class="card-header">
+  <div class="num">1</div>
+  <div class="hd"><h2>funannotate clean — 清理输入序列 <span class="badge b-req">必须</span></h2>
+  <p>去除短 contig、对齐重复序列，规范化 fasta 格式</p></div>
+</div>
+
+<pre>singularity exec ~/soft/funannotate_latest.sif \
+    /venv/bin/funannotate clean \
+    -i mag.fasta \
+    -o mag_clean.fasta \
+    --minlen 1000</pre>
+
+<div class="io-row">
+  <div class="io-box io-in"><strong>输入</strong><code>mag.fasta</code> — 原始 MAG</div>
+  <div class="io-box io-out"><strong>输出</strong><code>mag_clean.fasta</code> — 清理后序列</div>
+</div>
+
+<table>
+  <tr><th>参数</th><th>说明</th><th>默认值</th></tr>
+  <tr><td><code>--minlen</code></td><td>保留 contig 最小长度（bp）</td><td>500</td></tr>
+  <tr><td><code>--pident</code></td><td>去除重复序列的相似度阈值 %</td><td>95</td></tr>
+  <tr><td><code>--exhaustive</code></td><td>使用更严格的去重（较慢）</td><td>—</td></tr>
+</table>
+</div>
+
+<!-- ===== Step 2 ===== -->
+<div class="card" id="s2">
+<div class="card-header">
+  <div class="num">2</div>
+  <div class="hd"><h2>funannotate sort — 排序与重命名 <span class="badge b-req">必须</span></h2>
+  <p>按长度降序排列 contig，统一命名格式（避免 Augustus 不识别的特殊字符）</p></div>
+</div>
+
+<pre>singularity exec ~/soft/funannotate_latest.sif \
+    /venv/bin/funannotate sort \
+    -i mag_clean.fasta \
+    -o mag_sorted.fasta \
+    -b scaffold</pre>
+
+<div class="io-row">
+  <div class="io-box io-in"><strong>输入</strong><code>mag_clean.fasta</code></div>
+  <div class="io-box io-out"><strong>输出</strong><code>mag_sorted.fasta</code> — contig 重命名为 scaffold_1, scaffold_2…</div>
+</div>
+
+<table>
+  <tr><th>参数</th><th>说明</th></tr>
+  <tr><td><code>-b scaffold</code></td><td>contig 名称前缀，也可用 <code>contig</code>、物种缩写等</td></tr>
+</table>
+</div>
+
+<!-- ===== Step 3 ===== -->
+<div class="card" id="s3">
+<div class="card-header">
+  <div class="num">3</div>
+  <div class="hd"><h2>funannotate mask — 重复序列屏蔽 <span class="badge b-req">必须</span></h2>
+  <p>对转座子、重复序列进行软屏蔽（lowercase），提高后续基因预测准确性</p></div>
+</div>
+
+<pre>singularity exec ~/soft/funannotate_latest.sif \
+    /venv/bin/funannotate mask \
+    -i mag_sorted.fasta \
+    -o mag_masked.fasta \
+    --cpus 16</pre>
+
+<div class="io-row">
+  <div class="io-box io-in"><strong>输入</strong><code>mag_sorted.fasta</code></div>
+  <div class="io-box io-out"><strong>输出</strong><code>mag_masked.fasta</code> — 重复区域转为小写字母</div>
+</div>
+
+<div class="note">
+  内部调用 RepeatMasker（自带数据库）+ RepeatModeler（从头建库）。<br>
+  如已有 <code>.out</code> 文件可用 <code>--repeatmasker_out</code> 跳过重新计算。
+</div>
+
+<div class="warn">
+  <strong>软屏蔽 vs 硬屏蔽：</strong>funannotate 使用软屏蔽（小写字母），不要用 <code>-N</code> 硬屏蔽（N 字符）替换，会导致基因预测缺失边界信息。
+</div>
+</div>
+
+<!-- ===== Step 4 ===== -->
+<div class="card" id="s4">
+<div class="card-header">
+  <div class="num">4</div>
+  <div class="hd"><h2>funannotate train — 训练 Augustus 模型 <span class="badge b-opt">可选，有 RNA-seq 时做</span></h2>
+  <p>用 RNA-seq 数据运行 Trinity 组装转录本，训练物种特异性 Augustus 基因模型</p></div>
+</div>
+
+<pre>singularity exec ~/soft/funannotate_latest.sif \
+    /venv/bin/funannotate train \
+    -i mag_masked.fasta \
+    -o fun_out \
+    --left   RNA_R1.fastq.gz \
+    --right  RNA_R2.fastq.gz \
+    --stranded RF \
+    --jaccard_clip \
+    --species "Fungus_sp_MAG1" \
+    --cpus 16</pre>
+
+<div class="io-row">
+  <div class="io-box io-in"><strong>输入</strong><code>mag_masked.fasta</code> + RNA-seq reads</div>
+  <div class="io-box io-out"><strong>输出</strong><code>fun_out/training/</code> — Trinity 组装、PASA 比对结果、Augustus 训练数据</div>
+</div>
+
+<table>
+  <tr><th>参数</th><th>说明</th></tr>
+  <tr><td><code>--stranded RF</code></td><td>链特异性文库方向（常见：RF 或 FR，不确定则省略）</td></tr>
+  <tr><td><code>--jaccard_clip</code></td><td>真菌基因密集，推荐开启，减少嵌合转录本</td></tr>
+  <tr><td><code>--single</code></td><td>单端 reads 时替代 <code>--left</code>/<code>--right</code></td></tr>
+  <tr><td><code>--trinity</code></td><td>提供已有 Trinity 组装结果跳过重新组装</td></tr>
+</table>
+
+<div class="ok">
+  <strong>无 RNA-seq 时：</strong>直接跳到 Step 5（predict），funannotate 会使用已有的 Augustus 物种模型或 BUSCO 内置模型。
+</div>
+</div>
+
+<!-- ===== Step 5 ===== -->
+<div class="card" id="s5">
+<div class="card-header">
+  <div class="num">5</div>
+  <div class="hd"><h2>funannotate predict — 基因预测 <span class="badge b-req">核心步骤</span></h2>
+  <p>整合 Augustus、GeneMark-ES/ET、GlimmerHMM、SNAP、BUSCO 等多种工具进行 ab initio 预测，结合转录本证据生成最终基因模型</p></div>
+</div>
+
+<pre>singularity exec ~/soft/funannotate_latest.sif \
+    bash -c 'export PATH=/home/liuzifeng/soft/genemark/gmes_linux_64_4:$PATH \
+             && /venv/bin/funannotate "$@"' \
+    -- predict \
+    -i mag_masked.fasta \
+    -o fun_out \
+    --species "Fungus_sp_MAG1" \
+    --busco_seed_species botrytis_cinerea \
+    --busco_db fungi_odb10 \
+    --organism other \
+    --cpus 16</pre>
+
+<div class="io-row">
+  <div class="io-box io-in"><strong>输入</strong>
+    <code>mag_masked.fasta</code><br>
+    <code>fun_out/training/</code>（若有 train 结果）
+  </div>
+  <div class="io-box io-out"><strong>输出</strong> <code>fun_out/predict_results/</code><br>
+    <code>.gff3</code> 基因模型<br>
+    <code>.proteins.fa</code> 蛋白质序列<br>
+    <code>.transcripts.fa</code> 转录本序列<br>
+    <code>.scaffolds.fa</code> 基因组序列
+  </div>
+</div>
+
+<table>
+  <tr><th>参数</th><th>说明</th></tr>
+  <tr><td><code>--species</code></td><td>物种名（用于 Augustus 模型命名），建议用下划线代替空格</td></tr>
+  <tr><td><code>--busco_seed_species</code></td><td>初始 Augustus 训练的种子物种，选择亲缘最近的已知模型</td></tr>
+  <tr><td><code>--busco_db</code></td><td>BUSCO 数据库，真菌通常用 <code>fungi_odb10</code>（见末尾数据库列表）</td></tr>
+  <tr><td><code>--organism other</code></td><td>非脊椎动物填 <code>other</code>（真菌、植物等均用此选项）</td></tr>
+  <tr><td><code>--augustus_species</code></td><td>直接指定已有 Augustus 物种模型（跳过重新训练）</td></tr>
+  <tr><td><code>--genemark_mode ET</code></td><td>指定 GeneMark 模式：ET（有 RNA-seq）或 ES（无）</td></tr>
+  <tr><td><code>--min_intronlen</code></td><td>最小内含子长度，真菌默认 10 bp</td></tr>
+  <tr><td><code>--max_intronlen</code></td><td>最大内含子长度，真菌默认 3000 bp</td></tr>
+</table>
+
+<div class="note">
+  <strong>常用真菌 Augustus 种子模型（<code>--busco_seed_species</code>）：</strong><br>
+  子囊菌：<code>botrytis_cinerea</code> / <code>aspergillus_fumigatus</code> / <code>fusarium_graminearum</code><br>
+  担子菌：<code>cryptococcus_neoformans_neoformans_B</code> / <code>coprinus_cinereus</code><br>
+  壶菌：<code>rhizopus_oryzae</code>
+</div>
+</div>
+
+<!-- ===== Step 6 ===== -->
+<div class="card" id="s6">
+<div class="card-header">
+  <div class="num">6</div>
+  <div class="hd"><h2>funannotate update — 更新基因模型 <span class="badge b-opt">可选，有 RNA-seq 时做</span></h2>
+  <p>用 PASA 将转录本证据整合到基因模型中，修正 UTR、可变剪接等</p></div>
+</div>
+
+<pre>singularity exec ~/soft/funannotate_latest.sif \
+    /venv/bin/funannotate update \
+    -i fun_out \
+    --cpus 16</pre>
+
+<div class="io-row">
+  <div class="io-box io-in"><strong>输入</strong><code>fun_out/</code> 目录（含 predict_results 和 training）</div>
+  <div class="io-box io-out"><strong>输出</strong><code>fun_out/update_results/</code> — 更新后的 gff3/蛋白质序列</div>
+</div>
+
+<div class="ok">
+  update 完成后，annotate 步骤会自动优先使用 <code>update_results/</code> 中的模型。
+</div>
+</div>
+
+<!-- ===== Step 7 ===== -->
+<div class="card" id="s7">
+<div class="card-header">
+  <div class="num">7</div>
+  <div class="hd"><h2>funannotate annotate — 功能注释 <span class="badge b-req">核心步骤</span></h2>
+  <p>对预测基因进行 InterProScan、Swiss-Prot BLAST、GO、KEGG、CAZyme、MEROPS 等功能数据库注释</p></div>
+</div>
+
+<pre>singularity exec ~/soft/funannotate_latest.sif \
+    /venv/bin/funannotate annotate \
+    -i fun_out \
+    --busco_db fungi_odb10 \
+    --cpus 16</pre>
+
+<div class="io-row">
+  <div class="io-box io-in"><strong>输入</strong><code>fun_out/</code> 目录（含 predict 或 update 结果）</div>
+  <div class="io-box io-out"><strong>输出</strong><code>fun_out/annotate_results/</code><br>
+    <code>.gbk</code> GenBank 格式<br>
+    <code>.gff3</code> 基因组注释<br>
+    <code>annotation.txt</code> 功能注释汇总<br>
+    <code>interproscan.xml</code> InterPro 结果<br>
+    <code>pfam.txt</code>, <code>merops.txt</code>, <code>cazy.txt</code>
+  </div>
+</div>
+
+<table>
+  <tr><th>参数</th><th>说明</th></tr>
+  <tr><td><code>--sbt</code></td><td>NCBI submission 模板 .sbt 文件（提交 GenBank 时需要）</td></tr>
+  <tr><td><code>--eggnog</code></td><td>提供 eggNOG-mapper 预先运行的 .emapper.annotations 文件</td></tr>
+  <tr><td><code>--iprscan</code></td><td>提供 InterProScan 预先运行的 xml 文件（节省时间）</td></tr>
+  <tr><td><code>--busco_db</code></td><td>BUSCO 数据库（与 predict 步骤保持一致）</td></tr>
+  <tr><td><code>--fix</code></td><td>提供人工修正的 GFF3 文件</td></tr>
+</table>
+
+<div class="note">
+  InterProScan 在容器内运行，首次运行会下载数据库（约 20 GB），耗时较长。<br>
+  建议提前在容器外运行 InterProScan 后用 <code>--iprscan</code> 传入结果文件。
+</div>
+</div>
+
+<!-- ===== Step 8 ===== -->
+<div class="card" id="s8">
+<div class="card-header">
+  <div class="num">8</div>
+  <div class="hd"><h2>funannotate compare — 多基因组比较 <span class="badge b-opt">多 MAG 时可选</span></h2>
+  <p>对多个注释完成的真菌 MAG 进行比较基因组学分析</p></div>
+</div>
+
+<pre>singularity exec ~/soft/funannotate_latest.sif \
+    /venv/bin/funannotate compare \
+    -i fun_out_mag1 fun_out_mag2 fun_out_mag3 \
+    --run_dnds \
+    --cpus 16 \
+    -o compare_out</pre>
+
+<div class="io-row">
+  <div class="io-box io-in"><strong>输入</strong>多个 annotate 完成的 <code>fun_out*/</code> 目录</div>
+  <div class="io-box io-out"><strong>输出</strong><code>compare_out/</code><br>
+    直系同源聚类（OrthoFinder）<br>
+    基因家族扩张/收缩（CAFE）<br>
+    dN/dS 选择压力分析<br>
+    HTML 可视化报告
+  </div>
+</div>
+</div>
+
+<!-- ===== 输出文件 ===== -->
+<div class="card" id="output">
+<div class="card-header">
+  <div class="num num-gray">📄</div>
+  <div class="hd"><h2>关键输出文件说明</h2><p>annotate 完成后 fun_out/annotate_results/ 中的主要文件</p></div>
+</div>
+
+<table>
+  <tr><th>文件</th><th>格式</th><th>内容/用途</th></tr>
+  <tr><td><code>Genus_species.gbk</code></td><td>GenBank</td><td>完整基因组注释，可直接提交 NCBI</td></tr>
+  <tr><td><code>Genus_species.gff3</code></td><td>GFF3</td><td>基因组特征注释，用于下游分析</td></tr>
+  <tr><td><code>Genus_species.proteins.fa</code></td><td>FASTA</td><td>所有预测蛋白质序列</td></tr>
+  <tr><td><code>Genus_species.transcripts.fa</code></td><td>FASTA</td><td>所有预测转录本序列</td></tr>
+  <tr><td><code>Genus_species.scaffolds.fa</code></td><td>FASTA</td><td>最终基因组序列（用于提交）</td></tr>
+  <tr><td><code>annotate_summary.json</code></td><td>JSON</td><td>注释统计摘要</td></tr>
+  <tr><td><code>pfam.txt</code></td><td>TSV</td><td>Pfam 结构域注释</td></tr>
+  <tr><td><code>merops.txt</code></td><td>TSV</td><td>蛋白酶注释（MEROPS 数据库）</td></tr>
+  <tr><td><code>cazy.txt</code></td><td>TSV</td><td>碳水化合物活性酶（CAZyme）</td></tr>
+  <tr><td><code>interproscan.xml</code></td><td>XML</td><td>InterProScan 原始结果</td></tr>
+</table>
+</div>
+
+<!-- ===== BUSCO 数据库 ===== -->
+<div class="card" id="busco">
+<div class="card-header">
+  <div class="num num-gray">🍄</div>
+  <div class="hd"><h2>BUSCO 数据库选择（真菌）</h2><p>根据目标真菌的系统分类选择合适的数据库</p></div>
+</div>
+
+<div class="busco-grid">
+  <div class="bg-item"><strong>fungi_odb10</strong>通用真菌数据库<br>不确定分类时首选</div>
+  <div class="bg-item"><strong>ascomycota_odb10</strong>子囊菌门<br>（最大真菌门）</div>
+  <div class="bg-item"><strong>basidiomycota_odb10</strong>担子菌门<br>（蘑菇、锈病菌等）</div>
+  <tr></tr>
+  <div class="bg-item"><strong>sordariomycetes_odb10</strong>粪壳菌纲<br>（镰刀菌、脉孢霉等）</div>
+  <div class="bg-item"><strong>eurotiomycetes_odb10</strong>散囊菌纲<br>（青霉、曲霉等）</div>
+  <div class="bg-item"><strong>dothideomycetes_odb10</strong>座囊菌纲<br>（交链孢、葡萄孢等）</div>
+</div>
+
+<pre># 查看容器内已有的 BUSCO 数据库
+singularity exec ~/soft/funannotate_latest.sif \
+    /venv/bin/funannotate database --show-installed</pre>
+
+<pre># 下载/更新 BUSCO 数据库
+singularity exec ~/soft/funannotate_latest.sif \
+    /venv/bin/funannotate setup -d /path/to/funannotate_db -b fungi_odb10</pre>
+</div>
+
+<!-- ===== 批量处理 ===== -->
+<div class="card">
+<div class="card-header">
+  <div class="num num-gray">⚡</div>
+  <div class="hd"><h2>多个真菌 MAG 批量处理示例</h2><p>循环处理多个 MAG</p></div>
+</div>
+
+<pre>#!/bin/bash
+# 批量注释目录 mags/ 下的所有 fasta 文件
+SIF=~/soft/funannotate_latest.sif
+GMPATH=/home/liuzifeng/soft/genemark/gmes_linux_64_4
+
+for f in mags/*.fasta; do
+    NAME=$(basename "$f" .fasta)
+    echo "=== 处理 $NAME ==="
+
+    # clean（简写）
+    singularity exec $SIF /venv/bin/funannotate clean \
+        -i $f -o ${NAME}_clean.fasta --minlen 1000
+
+    # sort（简写）
+    singularity exec $SIF /venv/bin/funannotate sort \
+        -i ${NAME}_clean.fasta -o ${NAME}_sorted.fasta -b scaffold
+
+    # mask（简写）
+    singularity exec $SIF /venv/bin/funannotate mask \
+        -i ${NAME}_sorted.fasta -o ${NAME}_masked.fasta --cpus 16
+
+    # predict（需要 GeneMark PATH，用长命令）
+    singularity exec $SIF \
+        bash -c 'export PATH=${GMPATH}:$PATH && /venv/bin/funannotate "$@"' \
+        -- predict \
+        -i ${NAME}_masked.fasta \
+        -o fun_${NAME} \
+        --species ${NAME} \
+        --busco_seed_species botrytis_cinerea \
+        --busco_db fungi_odb10 \
+        --organism other \
+        --cpus 16
+
+    # annotate（简写）
+    singularity exec $SIF /venv/bin/funannotate annotate \
+        -i fun_${NAME} --busco_db fungi_odb10 --cpus 16
+
+    echo "=== $NAME 完成 ==="
+done</pre>
+
+<div class="warn">
+  批量脚本在 Linux 服务器上创建，避免从 Windows 粘贴（CRLF 换行符会导致 <code>syntax error</code>）。<br>
+  已有脚本文件时先检查：<code>cat -A script.sh | head -5</code>，行尾出现 <code>^M</code> 则运行 <code>sed -i 's/\r//' script.sh</code>。
+</div>
+</div>
+
+</div><!-- container -->
+<div style="text-align:center;padding:26px;color:#b794f4;font-size:0.82em;">
+  生成时间：2026-05-21 | funannotate v1.8.17 | Singularity 容器环境
+</div>
+</body>
+</html>

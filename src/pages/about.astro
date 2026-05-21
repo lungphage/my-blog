@@ -7,75 +7,121 @@ import Layout from '../layouts/BlogPost.astro';
 	description="流光镜影 - 关于作者"
 	pubDate={new Date('2026-05-21')}
 >
-	<p>
-		你好！我是流光镜影，毕业于<a href="https://www.jxau.edu.cn/" target="_blank">江西农业大学</a>。
-		对生物信息学、宏基因组分析和数据科学充满兴趣，这个博客记录我在学习与研究过程中的笔记、流程和思考。
-	</p>
-
-	<h2>研究方向</h2>
-	<ul>
-		<li>宏基因组 Binning 与 MAG 注释</li>
-		<li>真菌基因组学</li>
-		<li>比较基因组学与代谢分析</li>
-		<li>生物信息学工具开发与流程搭建</li>
-	</ul>
-
-	<h2>常用工具</h2>
-	<ul>
-		<li>funannotate — 真菌基因组注释</li>
-		<li>MetaBAT2 / MaxBin2 / CONCOCT — 宏基因组 Binning</li>
-		<li>EukCC / BUSCO — 真核基因组质量评估</li>
-		<li>Python / R / Bash — 数据分析与脚本</li>
-	</ul>
-
-	<h2>快捷链接</h2>
-	<div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;">
-		<a href="https://space.bilibili.com/5950502" target="_blank" class="link-btn bilibili">
-			📺 B站主页
-		</a>
-		<a href="https://chat.openai.com" target="_blank" class="link-btn chatgpt">
-			🤖 ChatGPT
-		</a>
-		<a href="https://gemini.google.com" target="_blank" class="link-btn gemini">
-			✨ Gemini
-		</a>
-		<a href="https://github.com/lungphage" target="_blank" class="link-btn github">
-			💻 GitHub
-		</a>
-		<a href="https://www.jxau.edu.cn/" target="_blank" class="link-btn jxau">
-			🎓 江西农业大学
-		</a>
+	<div class="about-hero">
+		<div class="avatar">🔬</div>
+		<h2>流光镜影</h2>
+		<p class="bio">江西农业大学 · 生物信息学</p>
 	</div>
 
-	<h2>联系方式</h2>
-	<p>
-		如果你对我的研究内容感兴趣，或者有任何问题和建议，欢迎通过以下方式联系我：
-	</p>
-	<ul>
-		<li>GitHub: <a href="https://github.com/lungphage" target="_blank">@lungphage</a></li>
-		<li>B站: <a href="https://space.bilibili.com/5950502" target="_blank">space.bilibili.com/5950502</a></li>
-	</ul>
+	<div class="links-grid">
+		<a href="https://space.bilibili.com/5950502" target="_blank" class="link-card bilibili">
+			<span class="link-icon">📺</span>
+			<span class="link-text">
+				<span class="link-title">B站</span>
+				<span class="link-sub">视频分享</span>
+			</span>
+		</a>
+		<a href="https://github.com/lungphage" target="_blank" class="link-card github">
+			<span class="link-icon">💻</span>
+			<span class="link-text">
+				<span class="link-title">GitHub</span>
+				<span class="link-sub">代码仓库</span>
+			</span>
+		</a>
+		<a href="https://chat.openai.com" target="_blank" class="link-card chatgpt">
+			<span class="link-icon">🤖</span>
+			<span class="link-text">
+				<span class="link-title">ChatGPT</span>
+				<span class="link-sub">AI 助手</span>
+			</span>
+		</a>
+		<a href="https://gemini.google.com" target="_blank" class="link-card gemini">
+			<span class="link-icon">✨</span>
+			<span class="link-text">
+				<span class="link-title">Gemini</span>
+				<span class="link-sub">AI 助手</span>
+			</span>
+		</a>
+		<a href="https://www.jxau.edu.cn/" target="_blank" class="link-card jxau">
+			<span class="link-icon">🎓</span>
+			<span class="link-text">
+				<span class="link-title">江西农业大学</span>
+				<span class="link-sub">母校</span>
+			</span>
+		</a>
+	</div>
 </Layout>
 
 <style>
-	.link-btn {
-		display: inline-block;
-		padding: 10px 20px;
-		border-radius: 8px;
+	.about-hero {
+		text-align: center;
+		padding: 2em 0 1.5em;
+	}
+	.avatar {
+		font-size: 4em;
+		width: 100px;
+		height: 100px;
+		line-height: 100px;
+		margin: 0 auto 0.5em;
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+		border-radius: 50%;
+	}
+	.about-hero h2 {
+		margin: 0 0 0.2em;
+		font-size: 1.8em;
+	}
+	.bio {
+		color: rgb(var(--gray));
+		margin: 0;
+		font-size: 1em;
+	}
+	.links-grid {
+		display: flex;
+		flex-direction: column;
+		gap: 14px;
+		max-width: 480px;
+		margin: 0 auto;
+	}
+	.link-card {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+		padding: 16px 20px;
+		border-radius: 12px;
 		text-decoration: none;
-		font-weight: 600;
-		font-size: 0.95em;
+		color: #fff;
 		transition: transform 0.2s, box-shadow 0.2s;
+	}
+	.link-card:hover {
+		transform: translateY(-3px);
+		box-shadow: 0 6px 20px rgba(0,0,0,0.25);
 		color: #fff;
 	}
-	.link-btn:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-		color: #fff;
+	.link-icon {
+		font-size: 1.6em;
+		width: 44px;
+		height: 44px;
+		line-height: 44px;
+		text-align: center;
+		background: rgba(255,255,255,0.2);
+		border-radius: 10px;
+		flex-shrink: 0;
 	}
-	.bilibili { background: #00a1d6; }
-	.chatgpt { background: #10a37f; }
-	.gemini { background: #886fbf; }
-	.github { background: #333; }
-	.jxau { background: #2b7a3e; }
+	.link-text {
+		display: flex;
+		flex-direction: column;
+	}
+	.link-title {
+		font-weight: 700;
+		font-size: 1.05em;
+	}
+	.link-sub {
+		font-size: 0.82em;
+		opacity: 0.85;
+	}
+	.bilibili { background: linear-gradient(135deg, #00a1d6, #0080b8); }
+	.github { background: linear-gradient(135deg, #444, #222); }
+	.chatgpt { background: linear-gradient(135deg, #10a37f, #0d8c6d); }
+	.gemini { background: linear-gradient(135deg, #886fbf, #6e55a0); }
+	.jxau { background: linear-gradient(135deg, #2b7a3e, #1e5c2d); }
 </style>

@@ -1,0 +1,26 @@
+backend:
+  name: github
+  repo: lungphage/my-blog
+  branch: main
+  commit_messages:
+    create: "content(blog): create {{slug}}"
+    update: "content(blog): update {{slug}}"
+    delete: "content(blog): delete {{slug}}"
+    uploadMedia: "[skip ci] media: upload {{path}}"
+    deleteMedia: "[skip ci] media: delete {{path}}"
+
+media_folder: "src/assets/images"
+public_folder: "/assets/images"
+
+collections:
+  - name: "blog"
+    label: "博客文章"
+    folder: "src/content/blog"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - { label: "标题", name: "title", widget: "string" }
+      - { label: "发布日期", name: "pubDate", widget: "datetime" }
+      - { label: "描述", name: "description", widget: "string", required: false }
+      - { label: "封面图", name: "heroImage", widget: "image", required: false }
+      - { label: "正文", name: "body", widget: "markdown" }

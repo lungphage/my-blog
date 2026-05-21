@@ -1,63 +1,81 @@
 ---
-import AboutHeroImage from '../assets/blog-placeholder-about.jpg';
 import Layout from '../layouts/BlogPost.astro';
 ---
 
 <Layout
-	title="About Me"
-	description="Lorem ipsum dolor sit amet"
-	pubDate={new Date('August 08 2021')}
-	heroImage={AboutHeroImage}
+	title="关于我"
+	description="流光镜影 - 关于作者"
+	pubDate={new Date('2026-05-21')}
 >
 	<p>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-		labore et dolore magna aliqua. Vitae ultricies leo integer malesuada nunc vel risus commodo
-		viverra. Adipiscing enim eu turpis egestas pretium. Euismod elementum nisi quis eleifend quam
-		adipiscing. In hac habitasse platea dictumst vestibulum. Sagittis purus sit amet volutpat. Netus
-		et malesuada fames ac turpis egestas. Eget magna fermentum iaculis eu non diam phasellus
-		vestibulum lorem. Varius sit amet mattis vulputate enim. Habitasse platea dictumst quisque
-		sagittis. Integer quis auctor elit sed vulputate mi. Dictumst quisque sagittis purus sit amet.
+		你好！我是流光镜影，毕业于<a href="https://www.jxau.edu.cn/" target="_blank">江西农业大学</a>。
+		对生物信息学、宏基因组分析和数据科学充满兴趣，这个博客记录我在学习与研究过程中的笔记、流程和思考。
 	</p>
 
-	<p>
-		Morbi tristique senectus et netus. Id semper risus in hendrerit gravida rutrum quisque non
-		tellus. Habitasse platea dictumst quisque sagittis purus sit amet. Tellus molestie nunc non
-		blandit massa. Cursus vitae congue mauris rhoncus. Accumsan tortor posuere ac ut. Fringilla urna
-		porttitor rhoncus dolor. Elit ullamcorper dignissim cras tincidunt lobortis. In cursus turpis
-		massa tincidunt dui ut ornare lectus. Integer feugiat scelerisque varius morbi enim nunc.
-		Bibendum neque egestas congue quisque egestas diam. Cras ornare arcu dui vivamus arcu felis
-		bibendum. Dignissim suspendisse in est ante in nibh mauris. Sed tempus urna et pharetra pharetra
-		massa massa ultricies mi.
-	</p>
+	<h2>研究方向</h2>
+	<ul>
+		<li>宏基因组 Binning 与 MAG 注释</li>
+		<li>真菌基因组学</li>
+		<li>比较基因组学与代谢分析</li>
+		<li>生物信息学工具开发与流程搭建</li>
+	</ul>
 
-	<p>
-		Mollis nunc sed id semper risus in. Convallis a cras semper auctor neque. Diam sit amet nisl
-		suscipit. Lacus viverra vitae congue eu consequat ac felis donec. Egestas integer eget aliquet
-		nibh praesent tristique magna sit amet. Eget magna fermentum iaculis eu non diam. In vitae
-		turpis massa sed elementum. Tristique et egestas quis ipsum suspendisse ultrices. Eget lorem
-		dolor sed viverra ipsum. Vel turpis nunc eget lorem dolor sed viverra. Posuere ac ut consequat
-		semper viverra nam. Laoreet suspendisse interdum consectetur libero id faucibus. Diam phasellus
-		vestibulum lorem sed risus ultricies tristique. Rhoncus dolor purus non enim praesent elementum
-		facilisis. Ultrices tincidunt arcu non sodales neque. Tempus egestas sed sed risus pretium quam
-		vulputate. Viverra suspendisse potenti nullam ac tortor vitae purus faucibus ornare. Fringilla
-		urna porttitor rhoncus dolor purus non. Amet dictum sit amet justo donec enim.
-	</p>
+	<h2>常用工具</h2>
+	<ul>
+		<li>funannotate — 真菌基因组注释</li>
+		<li>MetaBAT2 / MaxBin2 / CONCOCT — 宏基因组 Binning</li>
+		<li>EukCC / BUSCO — 真核基因组质量评估</li>
+		<li>Python / R / Bash — 数据分析与脚本</li>
+	</ul>
 
-	<p>
-		Mattis ullamcorper velit sed ullamcorper morbi tincidunt. Tortor posuere ac ut consequat semper
-		viverra. Tellus mauris a diam maecenas sed enim ut sem viverra. Venenatis urna cursus eget nunc
-		scelerisque viverra mauris in. Arcu ac tortor dignissim convallis aenean et tortor at. Curabitur
-		gravida arcu ac tortor dignissim convallis aenean et tortor. Egestas tellus rutrum tellus
-		pellentesque eu. Fusce ut placerat orci nulla pellentesque dignissim enim sit amet. Ut enim
-		blandit volutpat maecenas volutpat blandit aliquam etiam. Id donec ultrices tincidunt arcu. Id
-		cursus metus aliquam eleifend mi.
-	</p>
+	<h2>快捷链接</h2>
+	<div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;">
+		<a href="https://space.bilibili.com/5950502" target="_blank" class="link-btn bilibili">
+			📺 B站主页
+		</a>
+		<a href="https://chat.openai.com" target="_blank" class="link-btn chatgpt">
+			🤖 ChatGPT
+		</a>
+		<a href="https://gemini.google.com" target="_blank" class="link-btn gemini">
+			✨ Gemini
+		</a>
+		<a href="https://github.com/lungphage" target="_blank" class="link-btn github">
+			💻 GitHub
+		</a>
+		<a href="https://www.jxau.edu.cn/" target="_blank" class="link-btn jxau">
+			🎓 江西农业大学
+		</a>
+	</div>
 
+	<h2>联系方式</h2>
 	<p>
-		Tempus quam pellentesque nec nam aliquam sem. Risus at ultrices mi tempus imperdiet. Id porta
-		nibh venenatis cras sed felis eget velit. Ipsum a arcu cursus vitae. Facilisis magna etiam
-		tempor orci eu lobortis elementum. Tincidunt dui ut ornare lectus sit. Quisque non tellus orci
-		ac. Blandit libero volutpat sed cras. Nec tincidunt praesent semper feugiat nibh sed pulvinar
-		proin gravida. Egestas integer eget aliquet nibh praesent tristique magna.
+		如果你对我的研究内容感兴趣，或者有任何问题和建议，欢迎通过以下方式联系我：
 	</p>
+	<ul>
+		<li>GitHub: <a href="https://github.com/lungphage" target="_blank">@lungphage</a></li>
+		<li>B站: <a href="https://space.bilibili.com/5950502" target="_blank">space.bilibili.com/5950502</a></li>
+	</ul>
 </Layout>
+
+<style>
+	.link-btn {
+		display: inline-block;
+		padding: 10px 20px;
+		border-radius: 8px;
+		text-decoration: none;
+		font-weight: 600;
+		font-size: 0.95em;
+		transition: transform 0.2s, box-shadow 0.2s;
+		color: #fff;
+	}
+	.link-btn:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+		color: #fff;
+	}
+	.bilibili { background: #00a1d6; }
+	.chatgpt { background: #10a37f; }
+	.gemini { background: #886fbf; }
+	.github { background: #333; }
+	.jxau { background: #2b7a3e; }
+</style>

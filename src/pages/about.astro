@@ -14,40 +14,25 @@ import Layout from '../layouts/BlogPost.astro';
 	</div>
 
 	<div class="links-grid">
-		<a href="https://space.bilibili.com/5950502" target="_blank" class="link-card bilibili">
+		<a href="https://space.bilibili.com/5950502" target="_blank" class="link-block">
 			<span class="link-icon">📺</span>
-			<span class="link-text">
-				<span class="link-title">B站</span>
-				<span class="link-sub">视频分享</span>
-			</span>
+			<span class="link-name">B站</span>
 		</a>
-		<a href="https://github.com/lungphage" target="_blank" class="link-card github">
+		<a href="https://github.com/lungphage" target="_blank" class="link-block">
 			<span class="link-icon">💻</span>
-			<span class="link-text">
-				<span class="link-title">GitHub</span>
-				<span class="link-sub">代码仓库</span>
-			</span>
+			<span class="link-name">GitHub</span>
 		</a>
-		<a href="https://chat.openai.com" target="_blank" class="link-card chatgpt">
+		<a href="https://chat.openai.com" target="_blank" class="link-block">
 			<span class="link-icon">🤖</span>
-			<span class="link-text">
-				<span class="link-title">ChatGPT</span>
-				<span class="link-sub">AI 助手</span>
-			</span>
+			<span class="link-name">ChatGPT</span>
 		</a>
-		<a href="https://gemini.google.com" target="_blank" class="link-card gemini">
+		<a href="https://gemini.google.com" target="_blank" class="link-block">
 			<span class="link-icon">✨</span>
-			<span class="link-text">
-				<span class="link-title">Gemini</span>
-				<span class="link-sub">AI 助手</span>
-			</span>
+			<span class="link-name">Gemini</span>
 		</a>
-		<a href="https://www.jxau.edu.cn/" target="_blank" class="link-card jxau">
+		<a href="https://www.jxau.edu.cn/" target="_blank" class="link-block">
 			<span class="link-icon">🎓</span>
-			<span class="link-text">
-				<span class="link-title">江西农业大学</span>
-				<span class="link-sub">母校</span>
-			</span>
+			<span class="link-name">江西农业大学</span>
 		</a>
 	</div>
 </Layout>
@@ -55,73 +40,62 @@ import Layout from '../layouts/BlogPost.astro';
 <style>
 	.about-hero {
 		text-align: center;
-		padding: 2em 0 1.5em;
+		padding: 2em 0 2em;
 	}
 	.avatar {
-		font-size: 4em;
-		width: 100px;
-		height: 100px;
-		line-height: 100px;
-		margin: 0 auto 0.5em;
-		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-		border-radius: 50%;
+		font-size: 3em;
+		width: 80px;
+		height: 80px;
+		line-height: 80px;
+		margin: 0 auto 0.6em;
+		background: linear-gradient(135deg, #805ad5, #553c9a);
+		border-radius: 16px;
 	}
 	.about-hero h2 {
 		margin: 0 0 0.2em;
-		font-size: 1.8em;
+		font-size: 1.6em;
 	}
 	.bio {
 		color: rgb(var(--gray));
 		margin: 0;
-		font-size: 1em;
+		font-size: 0.95em;
 	}
 	.links-grid {
-		display: flex;
-		flex-direction: column;
-		gap: 14px;
-		max-width: 480px;
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+		gap: 16px;
+		max-width: 520px;
 		margin: 0 auto;
 	}
-	.link-card {
-		display: flex;
-		align-items: center;
-		gap: 16px;
-		padding: 16px 20px;
-		border-radius: 12px;
-		text-decoration: none;
-		color: #fff;
-		transition: transform 0.2s, box-shadow 0.2s;
-	}
-	.link-card:hover {
-		transform: translateY(-3px);
-		box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-		color: #fff;
-	}
-	.link-icon {
-		font-size: 1.6em;
-		width: 44px;
-		height: 44px;
-		line-height: 44px;
-		text-align: center;
-		background: rgba(255,255,255,0.2);
-		border-radius: 10px;
-		flex-shrink: 0;
-	}
-	.link-text {
+	.link-block {
 		display: flex;
 		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 10px;
+		padding: 28px 16px;
+		border-radius: 14px;
+		text-decoration: none !important;
+		background: linear-gradient(135deg, #805ad5 0%, #6b46c1 100%);
+		color: #fff;
+		transition: transform 0.25s, box-shadow 0.25s, background 0.3s;
 	}
-	.link-title {
-		font-weight: 700;
-		font-size: 1.05em;
+	.link-block:hover {
+		transform: translateY(-4px) scale(1.03);
+		box-shadow: 0 8px 24px rgba(128, 90, 213, 0.4);
+		background: linear-gradient(135deg, #6b46c1 0%, #553c9a 100%);
+		color: #fff;
 	}
-	.link-sub {
-		font-size: 0.82em;
-		opacity: 0.85;
+	.link-block:active {
+		transform: scale(0.97);
 	}
-	.bilibili { background: linear-gradient(135deg, #00a1d6, #0080b8); }
-	.github { background: linear-gradient(135deg, #444, #222); }
-	.chatgpt { background: linear-gradient(135deg, #10a37f, #0d8c6d); }
-	.gemini { background: linear-gradient(135deg, #886fbf, #6e55a0); }
-	.jxau { background: linear-gradient(135deg, #2b7a3e, #1e5c2d); }
+	.link-icon {
+		font-size: 1.8em;
+	}
+	.link-name {
+		font-weight: 600;
+		font-size: 0.9em;
+		text-align: center;
+		line-height: 1.3;
+	}
 </style>

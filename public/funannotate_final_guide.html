@@ -166,6 +166,7 @@
       </li>
       <li><a href="#predict">funannotate predict 完整命令</a></li>
       <li><a href="#annotate">funannotate annotate 完整命令</a></li>
+      <li><a href="#outputs">输出文件说明</a></li>
       <li><a href="#summary">根因总结与经验</a></li>
     </ol>
   </div>
@@ -533,6 +534,174 @@ singularity exec \
   <div class="success-banner">
     <h3>注释流程全部完成 ✓</h3>
     <p>funannotate predict + annotate 均成功运行。基因组：Fungus_sp_MAG1，36.9 Mb，5,410 scaffolds。结果输出至 <code>./fun_1/</code>。</p>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- 输出文件说明 -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <h2 class="sec" id="outputs"><span class="num"></span>输出文件说明</h2>
+
+  <div class="alert alert-info">
+    <strong>使用原则：</strong>已完成 annotate 步骤的情况下，优先使用 <code>annotate_results/</code> 中的文件，它们比 <code>predict_results/</code> 多了功能注释（GO / PFAM / InterPro）信息。
+  </div>
+
+  <!-- predict_results -->
+  <div class="card">
+    <h3 class="sub">predict_results/ — 基因结构预测输出</h3>
+    <p style="font-size:0.82rem;color:#888;font-family:monospace;margin-bottom:14px;">路径：~/2test_funannotate/fun_1/predict_results/</p>
+    <table class="info-table">
+      <tr>
+        <th style="width:320px;">文件名</th>
+        <th>用途</th>
+      </tr>
+      <tr style="background:#fffbea;">
+        <td><code>Fungus_sp_MAG1.gff3</code> <span class="tag tag-ok" style="font-size:.72rem;">常用</span></td>
+        <td>基因结构注释（无功能注释），下游若已跑 annotate 则用 annotate 版本替代</td>
+      </tr>
+      <tr style="background:#fffbea;">
+        <td><code>Fungus_sp_MAG1.proteins.fa</code> <span class="tag tag-ok" style="font-size:.72rem;">常用</span></td>
+        <td>所有预测基因的蛋白质序列，用于 BLAST、OrthoFinder、直系同源分析</td>
+      </tr>
+      <tr style="background:#fffbea;">
+        <td><code>Fungus_sp_MAG1.mrna-transcripts.fa</code> <span class="tag tag-ok" style="font-size:.72rem;">常用</span></td>
+        <td>mRNA 全长序列（含 UTR），用于转录组分析</td>
+      </tr>
+      <tr>
+        <td><code>Fungus_sp_MAG1.cds-transcripts.fa</code></td>
+        <td>仅编码区序列（CDS），做密码子偏好等分析时使用</td>
+      </tr>
+      <tr>
+        <td><code>Fungus_sp_MAG1.gbk</code></td>
+        <td>GenBank 格式，含序列+结构注释，可用 Artemis / SeqKit 查看</td>
+      </tr>
+      <tr>
+        <td><code>Fungus_sp_MAG1.stats.json</code></td>
+        <td>注释统计（基因数、外显子数、平均基因长度等），快速质检用</td>
+      </tr>
+      <tr>
+        <td><code>Fungus_sp_MAG1.scaffolds.fa</code></td>
+        <td>基因组序列（与输入 masked.fasta 基本一致）</td>
+      </tr>
+      <tr>
+        <td><code>Fungus_sp_MAG1.tbl</code></td>
+        <td>NCBI tbl 格式，提交 GenBank 时需要</td>
+      </tr>
+      <tr>
+        <td><code>Fungus_sp_MAG1.discrepency.report.txt</code></td>
+        <td>NCBI 质检报告，提交前需关注其中的 ERROR 条目</td>
+      </tr>
+      <tr>
+        <td><code>Fungus_sp_MAG1.validation.txt</code></td>
+        <td>tbl2asn 验证报告</td>
+      </tr>
+      <tr>
+        <td><code>Fungus_sp_MAG1.error.summary.txt</code></td>
+        <td>错误摘要，内容较少时表示注释质量正常</td>
+      </tr>
+      <tr>
+        <td><code>fungus_sp_mag1.parameters.json</code></td>
+        <td>Augustus 训练参数记录，再次训练时参考用</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- annotate_results -->
+  <div class="card">
+    <h3 class="sub">annotate_results/ — 功能注释输出（最终结果）</h3>
+    <p style="font-size:0.82rem;color:#888;font-family:monospace;margin-bottom:14px;">路径：~/2test_funannotate/fun_1/annotate_results/</p>
+    <table class="info-table">
+      <tr>
+        <th style="width:320px;">文件名</th>
+        <th>用途</th>
+      </tr>
+      <tr style="background:#edfaf5;">
+        <td><code>Fungus_sp_MAG1.gff3</code> <span class="tag tag-ok" style="font-size:.72rem;">★ 最终结果</span></td>
+        <td>带完整功能注释的 GFF3，含 GO / PFAM / InterPro 等信息，<strong>下游所有分析优先使用此文件</strong></td>
+      </tr>
+      <tr style="background:#edfaf5;">
+        <td><code>Fungus_sp_MAG1.annotations.txt</code> <span class="tag tag-ok" style="font-size:.72rem;">★ 最终结果</span></td>
+        <td>所有基因的功能注释汇总表（60 MB），含 GO terms、PFAM 域、InterPro ID、产物名，适合做 GO 富集、KEGG 通路分析</td>
+      </tr>
+      <tr style="background:#edfaf5;">
+        <td><code>Fungus_sp_MAG1.proteins.fa</code> <span class="tag tag-ok" style="font-size:.72rem;">★ 最终结果</span></td>
+        <td>蛋白质序列（与 predict 版相同），OrthoFinder / BLAST 分析首选</td>
+      </tr>
+      <tr style="background:#edfaf5;">
+        <td><code>Fungus_sp_MAG1.gbk</code> <span class="tag tag-ok" style="font-size:.72rem;">★ 最终结果</span></td>
+        <td>带功能注释的 GenBank 格式，<strong>提交 NCBI 时使用此版本</strong></td>
+      </tr>
+      <tr>
+        <td><code>Fungus_sp_MAG1.mrna-transcripts.fa</code></td>
+        <td>mRNA 全长序列（同 predict 版）</td>
+      </tr>
+      <tr>
+        <td><code>Fungus_sp_MAG1.cds-transcripts.fa</code></td>
+        <td>CDS 序列（同 predict 版）</td>
+      </tr>
+      <tr>
+        <td><code>Fungus_sp_MAG1.sqn</code></td>
+        <td>NCBI Sequin 格式（147 MB），直接提交 GenBank 数据库使用</td>
+      </tr>
+      <tr>
+        <td><code>Fungus_sp_MAG1.agp</code></td>
+        <td>scaffold 组装关系文件，NCBI 提交时需要</td>
+      </tr>
+      <tr>
+        <td><code>Fungus_sp_MAG1.contigs.fsa</code></td>
+        <td>NCBI 提交用的 contig FASTA</td>
+      </tr>
+      <tr>
+        <td><code>Fungus_sp_MAG1.tbl</code></td>
+        <td>带功能注释的 NCBI tbl 格式</td>
+      </tr>
+      <tr>
+        <td><code>Fungus_sp_MAG1.discrepency.report.txt</code></td>
+        <td>NCBI 质检报告（提交前必看）</td>
+      </tr>
+      <tr>
+        <td><code>Fungus_sp_MAG1.stats.json</code></td>
+        <td>最终注释统计</td>
+      </tr>
+      <tr>
+        <td><code>Gene2Products.must-fix.txt</code></td>
+        <td>必须修正的基因产物名称问题，提交 NCBI 前需处理</td>
+      </tr>
+      <tr>
+        <td><code>Gene2Products.need-curating.txt</code></td>
+        <td>建议人工核查的基因名称</td>
+      </tr>
+      <tr>
+        <td><code>Gene2Products.new-names-passed.txt</code></td>
+        <td>通过审查的新基因产物名称记录</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- 最常用文件速查 -->
+  <div class="card" style="border-left: 4px solid #0984e3;">
+    <h3 class="sub">最常用文件速查（3 个核心文件）</h3>
+    <table class="info-table">
+      <tr>
+        <th>用途场景</th>
+        <th>推荐文件</th>
+      </tr>
+      <tr>
+        <td>下游所有基因组分析的起点</td>
+        <td><code>annotate_results/Fungus_sp_MAG1.gff3</code></td>
+      </tr>
+      <tr>
+        <td>OrthoFinder / BLAST / 比较基因组</td>
+        <td><code>annotate_results/Fungus_sp_MAG1.proteins.fa</code></td>
+      </tr>
+      <tr>
+        <td>GO 富集 / KEGG 通路 / 功能统计</td>
+        <td><code>annotate_results/Fungus_sp_MAG1.annotations.txt</code></td>
+      </tr>
+      <tr>
+        <td>提交 NCBI GenBank</td>
+        <td><code>annotate_results/Fungus_sp_MAG1.sqn</code> + <code>.agp</code> + <code>.contigs.fsa</code></td>
+      </tr>
+    </table>
   </div>
 
   <!-- ══════════════════════════════════════════════════ -->

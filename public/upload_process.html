@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>上传过程记录 — funannotate_final_guide.html</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: "Segoe UI", "Microsoft YaHei", sans-serif; background: #f7f5ff; color: #2d3748; margin: 0; padding: 0; }
+    .top-bar { background: #fff; padding: 0.8em 1.5em; border-bottom: 1px solid #e9d8fd; display: flex; align-items: center; gap: 1em; position: sticky; top: 0; z-index: 100; }
+    .top-bar a { color: #553c9a; text-decoration: none; font-size: 0.95em; }
+    .top-bar a:hover { text-decoration: underline; }
+    .top-bar .site-name { color: #718096; font-size: 0.85em; }
+    .container { max-width: 860px; margin: 0 auto; padding: 36px 24px; }
+    h1 { color: #44337a; font-size: 1.6em; border-bottom: 3px solid #805ad5; padding-bottom: 12px; margin-bottom: 24px; }
+    h2 { color: #553c9a; font-size: 1.15em; margin-top: 28px; margin-bottom: 12px; }
+    .step { background: #fff; border: 1px solid #e9d8fd; border-radius: 10px; padding: 20px 24px; margin: 16px 0; }
+    .step-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .step-num { background: #805ad5; color: #fff; border-radius: 50%; width: 32px; height: 32px; line-height: 32px; text-align: center; font-weight: 700; font-size: 0.95em; flex-shrink: 0; }
+    .step-title { font-weight: 700; color: #44337a; font-size: 1.05em; }
+    .step p { margin: 8px 0; color: #4a5568; font-size: 0.93em; line-height: 1.7; }
+    pre { background: #1a1a2e; color: #c9d1f7; padding: 14px 18px; border-radius: 8px; overflow-x: auto; font-size: 0.84em; line-height: 1.7; margin: 10px 0; }
+    code { background: #e9d8fd; color: #553c9a; padding: 2px 6px; border-radius: 4px; font-size: 0.87em; }
+    .note { background: #f3e8ff; border-left: 4px solid #805ad5; padding: 11px 15px; border-radius: 4px; margin: 12px 0; font-size: 0.91em; }
+    .ok { background: #f0fff4; border-left: 4px solid #38a169; padding: 11px 15px; border-radius: 4px; margin: 12px 0; font-size: 0.91em; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.9em; }
+    th { background: #553c9a; color: #fff; padding: 8px 12px; text-align: left; }
+    td { padding: 8px 12px; border-bottom: 1px solid #e9d8fd; }
+    tr:nth-child(even) { background: #faf5ff; }
+    .file-tree { background: #1a1a2e; color: #c9d1f7; padding: 16px 20px; border-radius: 8px; font-family: monospace; font-size: 0.88em; line-height: 1.8; }
+    .file-tree .highlight { color: #a78bfa; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <a href="/blog/">← 返回博客</a>
+    <span class="site-name">流光镜影</span>
+  </div>
+  <div class="container">
+
+<h1>上传过程记录 — funannotate_final_guide.html</h1>
+<p style="color:#718096;">记录如何将 HTML 文章添加到流光镜影博客的完整步骤</p>
+
+<h2>涉及文件</h2>
+<table>
+  <tr><th>文件</th><th>操作</th><th>说明</th></tr>
+  <tr><td><code>funannotate_final_guide.html</code></td><td>复制到 public/</td><td>文章内容，静态 HTML</td></tr>
+  <tr><td><code>src/pages/blog/index.astro</code></td><td>编辑</td><td>博客列表，添加文章条目</td></tr>
+  <tr><td><code>AGENTS.md</code></td><td>参考</td><td>项目规范文档</td></tr>
+</table>
+
+<h2>文件位置</h2>
+<div class="file-tree">
+my-blog/<br>
+├── <span class="highlight">public/</span><br>
+│   ├── admin/                  ← Decap CMS 配置<br>
+│   ├── fungal_mag_funannotate.html<br>
+│   ├── HUNT_microbiota_critical_questions_claude.html<br>
+│   ├── HUNT_microbiota_summary_deepseek.html<br>
+│   └── <span class="highlight">funannotate_final_guide.html</span>  ← 本次新增<br>
+├── src/<br>
+│   └── pages/<br>
+│       └── blog/<br>
+│           └── <span class="highlight">index.astro</span>            ← 本次编辑<br>
+└── AGENTS.md
+</div>
+
+<h2>步骤详解</h2>
+
+<div class="step">
+  <div class="step-header">
+    <div class="step-num">1</div>
+    <div class="step-title">复制 HTML 文件到 public/</div>
+  </div>
+  <p>源文件路径：<code>I:\本机AI_agent结果合集文件夹\claude_2\funannotate_final_guide.html</code></p>
+  <p>目标路径：<code>C:\Users\11296\Documents\my-blog\public\funannotate_final_guide.html</code></p>
+<pre>Copy-Item "I:\本机AI_agent结果合集文件夹\claude_2\funannotate_final_guide.html" `
+  "C:\Users\11296\Documents\my-blog\public\" -Force</pre>
+  <div class="note">
+    <strong>为什么放 public/？</strong>静态 HTML 文件直接放入 public/ 目录，Astro 不会处理其中的 <code>${...}</code> 模板表达式。
+    如果放在 src/pages/ 中，bash 脚本里的变量会被 Astro 当作模板语法报错。
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-header">
+    <div class="step-num">2</div>
+    <div class="step-title">添加返回按钮</div>
+  </div>
+  <p>在 HTML 文件的 <code>&lt;body&gt;</code> 标签后、原有内容前，插入导航栏：</p>
+<pre>&lt;div style="background:#fff;padding:0.8em 1.5em;border-bottom:1px solid #e9d8fd;
+  display:flex;align-items:center;gap:1em;position:sticky;top:0;z-index:100;"&gt;
+  &lt;a href="/blog/" style="color:#553c9a;text-decoration:none;"&gt;← 返回博客&lt;/a&gt;
+  &lt;span style="color:#718096;font-size:0.85em;"&gt;流光镜影&lt;/span&gt;
+&lt;/div&gt;</pre>
+  <p>效果：页面顶部出现固定的紫色导航栏，点击可返回博客列表。</p>
+</div>
+
+<div class="step">
+  <div class="step-header">
+    <div class="step-num">3</div>
+    <div class="step-title">编辑博客列表页</div>
+  </div>
+  <p>编辑 <code>src/pages/blog/index.astro</code>，在 <code>articles</code> 数组中添加新条目：</p>
+<pre>{
+  title: 'Funannotate Singularity 完整操作记录 — Fungus_sp_MAG1',
+  desc: 'funannotate 完整操作流程记录，从 clean 到 annotate 全步骤实战',
+  date: '2026年5月21日',
+  url: '/funannotate_final_guide.html',
+  icon: '📋',
+  category: 'software',
+},</pre>
+  <p>字段说明：</p>
+  <table>
+    <tr><th>字段</th><th>说明</th></tr>
+    <tr><td><code>title</code></td><td>文章标题，显示在卡片中</td></tr>
+    <tr><td><code>desc</code></td><td>摘要描述，显示在标题下方</td></tr>
+    <tr><td><code>date</code></td><td>发布日期</td></tr>
+    <tr><td><code>url</code></td><td>链接地址，指向 public/ 中的 HTML 文件</td></tr>
+    <tr><td><code>icon</code></td><td>卡片图标（emoji）</td></tr>
+    <tr><td><code>category</code></td><td>分类：<code>software</code> / <code>paper</code> / <code>thoughts</code></td></tr>
+  </table>
+</div>
+
+<div class="step">
+  <div class="step-header">
+    <div class="step-num">4</div>
+    <div class="step-title">构建验证</div>
+  </div>
+  <p>运行构建命令确认无报错：</p>
+<pre>cd C:\Users\11296\Documents\my-blog
+npm run build</pre>
+  <p>预期输出：<code>✓ Completed</code>，无 ERROR。</p>
+</div>
+
+<div class="step">
+  <div class="step-header">
+    <div class="step-num">5</div>
+    <div class="step-title">提交并推送</div>
+  </div>
+<pre>git add .
+git commit -m "add: Funannotate Singularity 完整操作记录"
+git push</pre>
+  <div class="ok">
+    推送后 Cloudflare Pages 自动部署，约 1-2 分钟后网站更新。
+  </div>
+</div>
+
+<h2>关键规范（来自 AGENTS.md）</h2>
+<ul style="font-size:0.93em; line-height:1.8;">
+  <li>静态 HTML 文件必须放 <code>public/</code>，不能放 <code>src/pages/</code>（避免 <code>${...}</code> 模板冲突）</li>
+  <li>每篇文章必须在 <code>src/pages/blog/index.astro</code> 的 <code>articles</code> 数组中手动添加条目</li>
+  <li>每篇文章必须有返回按钮（<code>← 返回博客</code>）</li>
+  <li>分类标签：<code>software</code>（软件安装）、<code>paper</code>（文献阅读）、<code>thoughts</code>（想法）</li>
+  <li><code>npm run build</code> 是唯一的验证手段（无 lint / typecheck）</li>
+  <li>Git push 到 <code>main</code> 触发 Cloudflare Pages 自动部署</li>
+</ul>
+
+  </div>
+</body>
+</html>

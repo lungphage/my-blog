@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Funannotate Singularity 完整操作记录 — Fungus_sp_MAG1</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; background: #f0f2f5; color: #1a1a2e; line-height: 1.75; }
+
+    /* Header */
+    header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%); color: #fff; padding: 48px; }
+    header h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 8px; }
+    header .sub { opacity: 0.65; font-size: 0.92rem; margin-bottom: 16px; }
+    .badges { display: flex; gap: 10px; flex-wrap: wrap; }
+    .badge { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+    .badge-blue  { background: rgba(255,255,255,.15); color: #fff; }
+    .badge-green { background: #00b894; color: #fff; }
+
+    /* Layout */
+    .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px 60px; }
+
+    /* TOC */
+    .toc { background: #fff; border-radius: 12px; padding: 22px 28px; margin-bottom: 36px; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+    .toc h2 { font-size: 0.85rem; font-weight: 700; color: #636e72; margin-bottom: 12px; letter-spacing: .06em; text-transform: uppercase; }
+    .toc ol { padding-left: 20px; }
+    .toc li { margin: 5px 0; }
+    .toc a { color: #0984e3; text-decoration: none; font-size: 0.9rem; }
+    .toc a:hover { text-decoration: underline; }
+
+    /* Section headings */
+    h2.sec { font-size: 1.2rem; font-weight: 800; color: #1a1a2e; margin: 48px 0 16px; display: flex; align-items: center; gap: 10px; }
+    h2.sec .num { background: #0984e3; color: #fff; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; flex-shrink: 0; }
+    h3.sub { font-size: 0.97rem; font-weight: 700; color: #2d3436; margin: 22px 0 8px; }
+
+    /* Cards */
+    .card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.07); padding: 26px 30px; margin-bottom: 18px; }
+
+    /* Info table */
+    .info-table { width: 100%; border-collapse: collapse; }
+    .info-table th, .info-table td { padding: 10px 14px; text-align: left; font-size: 0.88rem; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+    .info-table th { background: #f7f8fa; font-weight: 600; width: 200px; color: #555; }
+    .info-table tr:last-child td, .info-table tr:last-child th { border-bottom: none; }
+
+    /* Alerts */
+    .alert { border-left: 4px solid; border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 14px 0; font-size: 0.87rem; }
+    .alert-warn    { border-color: #fdcb6e; background: #fef9ec; }
+    .alert-success { border-color: #00b894; background: #edfaf5; }
+    .alert-info    { border-color: #74b9ff; background: #edf4ff; }
+    .alert-error   { border-color: #e17055; background: #fff5f3; }
+    .alert strong  { display: block; margin-bottom: 3px; }
+
+    /* Code blocks */
+    .code-wrap { position: relative; margin: 10px 0 16px; }
+    pre {
+      background: #1e272e; color: #dfe6e9;
+      padding: 16px 20px; padding-right: 76px;
+      border-radius: 10px; font-size: 0.80rem;
+      overflow-x: auto; line-height: 1.65;
+      font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+      white-space: pre;
+    }
+    pre.error-block { background: #2d1b1b; border-left: 3px solid #e17055; border-radius: 0 10px 10px 0; }
+    .copy-btn {
+      position: absolute; top: 10px; right: 10px;
+      background: rgba(255,255,255,.12); color: #b2bec3;
+      border: 1px solid rgba(255,255,255,.18); border-radius: 6px;
+      padding: 4px 12px; font-size: 0.74rem; cursor: pointer;
+      transition: background .15s, color .15s; font-family: inherit;
+    }
+    .copy-btn:hover  { background: rgba(255,255,255,.22); color: #fff; }
+    .copy-btn.copied { background: #00b894; color: #fff; border-color: #00b894; }
+    .cm { color: #74b9ff; }
+    .kw { color: #fd79a8; }
+    .st { color: #55efc4; }
+    .er { color: #ff7675; }
+
+    /* Inline code */
+    code { font-family: "Cascadia Code", "Fira Code", Consolas, monospace; font-size: 0.84rem; background: #edf2f7; padding: 1px 6px; border-radius: 4px; color: #c0392b; }
+
+    /* Timeline */
+    .timeline { position: relative; padding-left: 28px; }
+    .timeline::before { content: ''; position: absolute; left: 9px; top: 6px; bottom: 6px; width: 2px; background: #dfe6e9; }
+    .tl-item { position: relative; margin-bottom: 28px; }
+    .tl-item:last-child { margin-bottom: 0; }
+    .tl-dot { position: absolute; left: -24px; top: 4px; width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 2px #b2bec3; background: #b2bec3; }
+    .tl-dot.fail    { background: #e17055; box-shadow: 0 0 0 2px #e17055; }
+    .tl-dot.success { background: #00b894; box-shadow: 0 0 0 2px #00b894; }
+    .tl-dot.warn    { background: #fdcb6e; box-shadow: 0 0 0 2px #fdcb6e; }
+    .tl-time { font-size: 0.78rem; color: #0984e3; font-family: monospace; margin-bottom: 4px; }
+    .tl-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; }
+    .tl-body { font-size: 0.88rem; color: #555; }
+
+    /* Step list */
+    .steps { counter-reset: step; }
+    .step { display: grid; grid-template-columns: 38px 1fr; gap: 0 14px; }
+    .step-n { counter-increment: step; width: 38px; height: 38px; background: #0984e3; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.88rem; flex-shrink: 0; margin-top: 2px; }
+    .step-n::after { content: counter(step); }
+    .step-body { padding-bottom: 24px; border-left: 2px dashed #dfe6e9; margin-left: -19px; padding-left: 19px; }
+    .step-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; color: #1a1a2e; }
+    .step-body p { margin-bottom: 8px; font-size: 0.9rem; }
+
+    /* Summary table */
+    .sum-table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+    .sum-table th { background: #1a1a2e; color: #fff; padding: 10px 14px; text-align: left; }
+    .sum-table td { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+    .sum-table tr:last-child td { border-bottom: none; }
+    .sum-table tr:nth-child(even) td { background: #f7f8fa; }
+
+    /* Tags */
+    .tag { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .tag-fail { background: #fab1a0; color: #c0392b; }
+    .tag-ok   { background: #b2f5d0; color: #00695c; }
+    .tag-warn { background: #ffeaa7; color: #b7770d; }
+
+    /* File label */
+    .file-label { font-size: 0.78rem; font-weight: 700; color: #636e72; background: #f0f2f5; border-radius: 6px 6px 0 0; padding: 5px 14px; display: inline-block; margin-bottom: -2px; border: 1px solid #e0e0e0; border-bottom: none; }
+
+    /* Flow */
+    .flow { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; margin: 14px 0; }
+    .flow-box { background: #0984e3; color: #fff; padding: 7px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; }
+    .flow-arrow { color: #b2bec3; font-size: 1.1rem; padding: 0 4px; }
+
+    /* Success banner */
+    .success-banner { background: linear-gradient(135deg, #00b894, #00cec9); color: #fff; border-radius: 12px; padding: 26px 32px; margin: 36px 0; }
+    .success-banner h3 { font-size: 1.1rem; margin-bottom: 6px; }
+    .success-banner p  { opacity: .88; font-size: 0.9rem; }
+
+    footer { text-align: center; padding: 32px; font-size: 0.8rem; color: #aaa; }
+  </style>
+</head>
+<body>
+<div style="background:#fff;padding:0.8em 1.5em;border-bottom:1px solid #e9d8fd;display:flex;align-items:center;gap:1em;position:sticky;top:0;z-index:100;">
+  <a href="/blog/" style="color:#553c9a;text-decoration:none;font-size:0.95em;">← 返回博客</a>
+  <span style="color:#718096;font-size:0.85em;">流光镜影</span>
+</div>
+
+<header>
+  <h1>Funannotate 基因组注释完整记录</h1>
+  <p class="sub">Singularity 容器内运行 funannotate v1.8.17 — 问题排查过程 + 最终有效方案</p>
+  <div class="badges">
+    <span class="badge badge-blue">物种：Fungus_sp_MAG1</span>
+    <span class="badge badge-blue">基因组：36.9 Mb · 5,410 scaffolds</span>
+    <span class="badge badge-blue">funannotate v1.8.17</span>
+    <span class="badge badge-blue">Singularity</span>
+    <span class="badge badge-green">predict ✓  annotate ✓</span>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- TOC -->
+  <div class="toc">
+    <h2>目录</h2>
+    <ol>
+      <li><a href="#env">运行环境</a></li>
+      <li><a href="#issue1">问题一：exonerate 符号缺失（非致命）</a></li>
+      <li><a href="#issue2">问题二：Augustus 并行预测全部失败（致命）</a>
+        <ol style="margin-top:4px;">
+          <li><a href="#cause">根本原因分析</a></li>
+          <li><a href="#try1">尝试一：--bind 挂载 augustus config</a></li>
+          <li><a href="#try2">尝试二：rsync 补全本地 config</a></li>
+          <li><a href="#try3">尝试三：手动调试 augustus_parallel.py</a></li>
+          <li><a href="#solution">最终解决方案：自定义并行脚本</a></li>
+        </ol>
+      </li>
+      <li><a href="#predict">funannotate predict 完整命令</a></li>
+      <li><a href="#annotate">funannotate annotate 完整命令</a></li>
+      <li><a href="#summary">根因总结与经验</a></li>
+    </ol>
+  </div>
+
+  <!-- 环境 -->
+  <h2 class="sec" id="env"><span class="num"></span>运行环境</h2>
+  <div class="card">
+    <table class="info-table">
+      <tr><th>操作系统</th><td>Debian GNU/Linux 11</td></tr>
+      <tr><th>硬件</th><td>72 核 CPU，~527 GB RAM</td></tr>
+      <tr><th>容器镜像</th><td><code>~/soft/funannotate_latest.sif</code>（funannotate v1.8.17，Python 3.8.15）</td></tr>
+      <tr><th>基因组文件</th><td><code>masked.fasta</code>（5,410 scaffolds；36,937,716 bp；2.21% repeats masked）</td></tr>
+      <tr><th>物种名</th><td>Fungus_sp_MAG1</td></tr>
+      <tr><th>BUSCO 训练集</th><td>botrytis_cinerea（dikarya 数据库，路径 <code>/opt/databases/dikarya</code>）</td></tr>
+      <tr><th>GeneMark 路径</th><td><code>/home/liuzifeng/soft/genemark/gmes_linux_64_4</code></td></tr>
+      <tr><th>工作目录</th><td><code>/home/liuzifeng/2test_funannotate</code></td></tr>
+      <tr><th>输出目录</th><td><code>./fun_1</code></td></tr>
+    </table>
+  </div>
+
+  <!-- 初始命令 -->
+  <div class="card">
+    <h3 class="sub">初始运行命令（触发问题的原始命令）</h3>
+    <div class="code-wrap">
+      <button class="copy-btn" onclick="copyCode(this)">复制</button>
+      <pre>cd /home/liuzifeng/2test_funannotate
+
+singularity exec ~/soft/funannotate_latest.sif \
+  bash -c 'export PATH=/home/liuzifeng/soft/genemark/gmes_linux_64_4:$PATH \
+           && /venv/bin/funannotate "$@"' -- \
+  predict -i masked.fasta -o ./fun_1 \
+  --species "Fungus_sp_MAG1" \
+  --busco_seed_species botrytis_cinerea \
+  --cpus 30</pre>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- 问题一 -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <h2 class="sec" id="issue1"><span class="num"></span>问题一：exonerate 符号缺失 <span class="tag tag-warn" style="font-size:.8rem;margin-left:6px;">非致命</span></h2>
+
+  <div class="card">
+    <h3 class="sub">报错信息</h3>
+    <div class="code-wrap">
+      <pre class="error-block"><span class="er">exonerate: symbol lookup error: exonerate: undefined symbol: g_string_free_and_steal</span>
+     Progress: 0 complete, 264277 failed, 0 remaining
+[...]: Exonerate finished in 0:05:44: found 0 alignments</pre>
+    </div>
+
+    <h3 class="sub">根本原因</h3>
+    <p>容器内 exonerate 二进制链接了 GLib ≥ 2.76（该版本引入 <code>g_string_free_and_steal</code>），但宿主机运行时加载的 GLib 版本不包含此符号，导致动态链接失败。</p>
+
+    <h3 class="sub">影响评估</h3>
+    <table class="info-table">
+      <tr><th>影响范围</th><td>蛋白同源证据（protein homology weight）缺失，264,277 个比对任务全部失败</td></tr>
+      <tr><th>是否中断流程</th><td>否。funannotate 以 0 alignments 继续，GeneMark / Augustus / SNAP / GlimmerHMM 正常运行</td></tr>
+      <tr><th>对结果影响</th><td>轻微，ab initio 预测器仍可产出基因模型</td></tr>
+    </table>
+
+    <div class="alert alert-warn" style="margin-top:14px;">
+      <strong>处理方式：忽略，流程不中断。</strong>
+      如需彻底修复，需在容器内替换为与宿主 GLib 兼容的 exonerate 版本，或升级宿主机 GLib。本次流程选择忽略此报错继续运行。
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- 问题二 -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <h2 class="sec" id="issue2"><span class="num"></span>问题二：Augustus 并行预测全部失败 <span class="tag tag-fail" style="font-size:.8rem;margin-left:6px;">致命</span></h2>
+
+  <div class="card">
+    <h3 class="sub">报错信息</h3>
+    <div class="code-wrap">
+      <pre class="error-block">     Progress: 0 complete, 5410 failed, 0 remaining
+Traceback (most recent call last):
+  File ".../augustus_parallel.py", line 166, in &lt;module&gt;
+    with open(file) as input:
+<span class="er">FileNotFoundError: [Errno 2] No such file or directory:
+  'augustus_tmp_xxx/scaffold_1.augustus.gff3'</span>
+[...]: CMD ERROR: perl .../augustus_GFF3_to_EVM_GFF3.pl ./fun_1/predict_misc/augustus.gff3
+[...]: Error, cannot open file ./fun_1/predict_misc/augustus.gff3</pre>
+    </div>
+  </div>
+
+  <!-- 根本原因 -->
+  <h3 class="sub" id="cause" style="margin-left:4px;">根本原因分析</h3>
+  <div class="card">
+    <p>通过读取 <code>augustus_parallel.py</code> 源码（第 89 行）定位问题：</p>
+    <div class="code-wrap">
+      <pre><span class="cm"># augustus_parallel.py 第 39、46~64、89 行关键逻辑：</span>
+parser.add_argument('--AUGUSTUS_CONFIG_PATH')   <span class="cm"># 系统 config 路径（只读）</span>
+parser.add_argument('--local_augustus')          <span class="cm"># 本地 config 路径</span>
+
+<span class="cm"># 实际调用 augustus 时使用的是 LOCALAUGUSTUS（本地路径），不是系统路径</span>
+core_cmd = ['augustus', species,
+            '--AUGUSTUS_CONFIG_PATH={}'.format(LOCALAUGUSTUS),
+            '--softmasking=1', ...]
+lib.runSubprocess(core_cmd, '.', lib.log, capture_output=aug_out)</pre>
+    </div>
+
+    <p>funannotate BUSCO 步骤在 <code>fun_1/predict_misc/ab_initio_parameters/augustus</code> 创建了一个<strong>不完整的</strong> augustus config 副本（仅含物种参数，缺少全局配置文件）。Augustus 以此为 config 路径启动时因找不到必要文件而立即崩溃，输出文件从未生成。</p>
+    <p>此外，<code>augustus_parallel.py</code> 内部 multiprocessing 的 worker 进程存在静默失败 bug（日志显示 5,410 个任务在 <strong>1 秒内</strong>全部"完成"，实际 augustus 从未运行）。</p>
+
+    <table class="info-table" style="margin-top:14px;">
+      <tr><th>系统 config</th><td><code>/usr/share/augustus/config</code> — 完整但只读（Singularity 容器内）</td></tr>
+      <tr><th>本地 config</th><td><code>fun_1/predict_misc/ab_initio_parameters/augustus</code> — 可写但不完整</td></tr>
+    </table>
+  </div>
+
+  <!-- 尝试一 -->
+  <h3 class="sub" id="try1" style="margin-left:4px;">尝试一：--bind 挂载 augustus config <span class="tag tag-fail" style="margin-left:6px;">部分有效</span></h3>
+  <div class="card">
+    <p>将系统 config 从容器提取到宿主机可写目录，再以 <code>--bind</code> 重新挂载，使训练步骤可写入。</p>
+    <div class="code-wrap">
+      <button class="copy-btn" onclick="copyCode(this)">复制</button>
+      <pre><span class="cm"># Step 1：提取系统 config 到宿主机</span>
+singularity exec ~/soft/funannotate_latest.sif \
+  cp -r /usr/share/augustus/config ~/augustus_config
+
+<span class="cm"># Step 2：以 --bind 挂载可写 config 重新运行</span>
+singularity exec \
+  --bind ~/augustus_config:/usr/share/augustus/config \
+  ~/soft/funannotate_latest.sif \
+  bash -c 'export PATH=/home/liuzifeng/soft/genemark/gmes_linux_64_4:$PATH \
+           && /venv/bin/funannotate "$@"' -- \
+  predict -i masked.fasta -o ./fun_1 \
+  --species "Fungus_sp_MAG1" \
+  --busco_seed_species botrytis_cinerea \
+  --cpus 30</pre>
+    </div>
+    <div class="alert alert-error">
+      <strong>结果：仍然失败。</strong>
+      系统 config 可写了，但 augustus_parallel.py 调用的是本地 config（<code>LOCALAUGUSTUS</code>），本地 config 仍然不完整，Augustus 预测依旧失败。
+    </div>
+  </div>
+
+  <!-- 尝试二 -->
+  <h3 class="sub" id="try2" style="margin-left:4px;">尝试二：rsync 补全本地 config <span class="tag tag-fail" style="margin-left:6px;">部分有效</span></h3>
+  <div class="card">
+    <p>将宿主机的完整 config 同步到本地 config 目录，<code>--ignore-existing</code> 保留已训练的物种参数：</p>
+    <div class="code-wrap">
+      <button class="copy-btn" onclick="copyCode(this)">复制</button>
+      <pre>rsync -av --ignore-existing \
+  ~/augustus_config/ \
+  /home/liuzifeng/2test_funannotate/fun_1/predict_misc/ab_initio_parameters/augustus/</pre>
+    </div>
+
+    <p>验证 augustus 手动调用正常：</p>
+    <div class="code-wrap">
+      <button class="copy-btn" onclick="copyCode(this)">复制</button>
+      <pre>singularity exec \
+  --bind ~/augustus_config:/usr/share/augustus/config \
+  ~/soft/funannotate_latest.sif \
+  augustus \
+  --species=fungus_sp_mag1 \
+  --AUGUSTUS_CONFIG_PATH=/home/liuzifeng/2test_funannotate/fun_1/predict_misc/ab_initio_parameters/augustus \
+  /venv/lib/python3.8/site-packages/funannotate/config/busco_test.fa 2>&1 | head -15
+<span class="cm"># 输出正常 GFF3 ✓</span></pre>
+    </div>
+
+    <div class="alert alert-error">
+      <strong>结果：手动测试通过，但 funannotate 仍然失败。</strong>
+      augustus_parallel.py 内部 multiprocessing 的 worker 进程静默失败，5,410 个任务 1 秒内全部"完成"，实际 augustus 从未真正运行。
+    </div>
+  </div>
+
+  <!-- 尝试三：调试 -->
+  <h3 class="sub" id="try3" style="margin-left:4px;">尝试三：手动调试 augustus_parallel.py <span class="tag tag-fail" style="margin-left:6px;">揭示根因</span></h3>
+  <div class="card">
+    <p>直接调用 <code>augustus_parallel.py</code> 并查看其独立日志文件 <code>augustus-parallel.log</code>：</p>
+    <div class="code-wrap">
+      <button class="copy-btn" onclick="copyCode(this)">复制</button>
+      <pre>singularity exec \
+  --bind ~/augustus_config:/usr/share/augustus/config \
+  ~/soft/funannotate_latest.sif \
+  python /venv/lib/python3.8/site-packages/funannotate/aux_scripts/augustus_parallel.py \
+  -i fun_1/predict_misc/genome.softmasked.fa \
+  -s fungus_sp_mag1 \
+  --local_augustus /home/liuzifeng/2test_funannotate/fun_1/predict_misc/ab_initio_parameters/augustus \
+  --AUGUSTUS_CONFIG_PATH /home/liuzifeng/2test_funannotate/fun_1/predict_misc/ab_initio_parameters/augustus \
+  -o fun_1/predict_misc/augustus.gff3</pre>
+    </div>
+
+    <div class="code-wrap">
+      <button class="copy-btn" onclick="copyCode(this)">复制</button>
+      <pre>cat augustus-parallel.log</pre>
+    </div>
+
+    <p>日志关键输出：</p>
+    <div class="code-wrap">
+      <pre>[05/22/26 15:54:05]: Running Augustus on 5410 chunks, using <span class="er">2 CPUs</span>
+[05/22/26 15:54:06]: Augustus prediction is finished, now concatenating results
+<span class="cm"># ↑ 5410 个任务在 1 秒内全部"完成"，worker 进程静默失败，文件从未生成</span></pre>
+    </div>
+
+    <div class="alert alert-info">
+      <strong>关键发现：</strong>
+      multiprocessing worker 进程在 Singularity 环境下静默崩溃，<code>lib.runSubprocess</code> 不抛出异常，任务被标记为"完成"但没有任何输出文件产生。这是 funannotate v1.8.17 在 Singularity 中的已知兼容性问题。
+    </div>
+  </div>
+
+  <!-- 最终解决方案 -->
+  <h3 class="sub" id="solution" style="margin-left:4px;">最终解决方案：自定义 Augustus 并行脚本 <span class="tag tag-ok" style="margin-left:6px;">成功 ✓</span></h3>
+  <div class="card">
+    <p>完全绕过 <code>augustus_parallel.py</code>，使用自定义 Python 脚本直接调用 <code>subprocess + multiprocessing.Pool</code> 并行运行 augustus，再将结果通过 <code>--augustus_gff</code> 传入 funannotate。</p>
+
+    <div class="flow">
+      <div class="flow-box">拆分 genome → scaffold FASTA</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">Pool(30) 并行运行 augustus</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">合并为 augustus.gff3</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">--augustus_gff 传入 funannotate</div>
+    </div>
+
+    <div class="file-label">run_augustus_parallel.py</div>
+    <div class="code-wrap">
+      <button class="copy-btn" onclick="copyCode(this)">复制</button>
+      <pre><span class="cm">#!/usr/bin/env python3</span>
+import subprocess, os
+from multiprocessing import Pool
+from Bio import SeqIO
+
+<span class="cm"># ── 配置项 ──────────────────────────────────────────</span>
+GENOME  = <span class="st">"fun_1/predict_misc/genome.softmasked.fa"</span>
+CFG     = <span class="st">"/home/liuzifeng/2test_funannotate/fun_1/predict_misc/ab_initio_parameters/augustus"</span>
+OUTDIR  = <span class="st">"/home/liuzifeng/2test_funannotate/aug_tmp"</span>
+CPUS    = 30
+SPECIES = <span class="st">"fungus_sp_mag1"</span>
+OUT_GFF = <span class="st">"fun_1/predict_misc/augustus.gff3"</span>
+<span class="cm"># ────────────────────────────────────────────────────</span>
+
+os.makedirs(OUTDIR, exist_ok=True)
+
+<span class="kw">def</span> run_aug(rec_id):
+    fa  = f<span class="st">"{OUTDIR}/{rec_id}.fa"</span>
+    gff = f<span class="st">"{OUTDIR}/{rec_id}.gff3"</span>
+    r = subprocess.run(
+        [<span class="st">"augustus"</span>, f<span class="st">"--species={SPECIES}"</span>,
+         f<span class="st">"--AUGUSTUS_CONFIG_PATH={CFG}"</span>,
+         <span class="st">"--softmasking=1"</span>, <span class="st">"--gff3=on"</span>, fa],
+        capture_output=True, text=True
+    )
+    <span class="kw">with</span> open(gff, <span class="st">'w'</span>) <span class="kw">as</span> f_out:
+        f_out.write(r.stdout)
+    <span class="kw">return</span> rec_id
+
+<span class="cm"># 拆分基因组为单 scaffold FASTA</span>
+rec_ids = []
+<span class="kw">with</span> open(GENOME) <span class="kw">as</span> fh:
+    <span class="kw">for</span> rec <span class="kw">in</span> SeqIO.parse(fh, <span class="st">"fasta"</span>):
+        <span class="kw">with</span> open(f<span class="st">"{OUTDIR}/{rec.id}.fa"</span>, <span class="st">'w'</span>) <span class="kw">as</span> out:
+            SeqIO.write(rec, out, <span class="st">"fasta"</span>)
+        rec_ids.append(rec.id)
+print(f<span class="st">"Split {len(rec_ids)} scaffolds, running with {CPUS} CPUs..."</span>)
+
+<span class="cm"># 并行运行 augustus</span>
+<span class="kw">with</span> Pool(CPUS) <span class="kw">as</span> pool:
+    <span class="kw">for</span> i, rid <span class="kw">in</span> enumerate(pool.imap_unordered(run_aug, rec_ids)):
+        <span class="kw">if</span> (i + 1) % 500 == 0:
+            print(f<span class="st">"  {i+1}/{len(rec_ids)} done"</span>)
+
+<span class="cm"># 合并所有 GFF3</span>
+<span class="kw">with</span> open(OUT_GFF, <span class="st">'w'</span>) <span class="kw">as</span> out:
+    <span class="kw">for</span> rid <span class="kw">in</span> rec_ids:
+        gff = f<span class="st">"{OUTDIR}/{rid}.gff3"</span>
+        <span class="kw">if</span> os.path.exists(gff) <span class="kw">and</span> os.path.getsize(gff) > 0:
+            <span class="kw">with</span> open(gff) <span class="kw">as</span> f_in:
+                out.write(f_in.read())
+
+total = sum(1 <span class="kw">for</span> _ <span class="kw">in</span> open(OUT_GFF))
+print(f<span class="st">"Done: {OUT_GFF}  ({total} lines)"</span>)</pre>
+    </div>
+
+    <p>在容器内运行此脚本：</p>
+    <div class="code-wrap">
+      <button class="copy-btn" onclick="copyCode(this)">复制</button>
+      <pre>cd /home/liuzifeng/2test_funannotate
+
+singularity exec \
+  --bind ~/augustus_config:/usr/share/augustus/config \
+  ~/soft/funannotate_latest.sif \
+  python3 run_augustus_parallel.py</pre>
+    </div>
+
+    <p>验证输出：</p>
+    <div class="code-wrap">
+      <button class="copy-btn" onclick="copyCode(this)">复制</button>
+      <pre>wc -l fun_1/predict_misc/augustus.gff3
+<span class="cm"># 应有数万行，说明预测成功</span></pre>
+    </div>
+
+    <div class="alert alert-success">
+      <strong>结果：成功 ✓</strong>
+      augustus.gff3 正常生成，funannotate predict 后续步骤（EVM 整合）顺利完成。
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- predict -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <h2 class="sec" id="predict"><span class="num"></span>funannotate predict — 最终成功命令</h2>
+
+  <div class="card">
+    <p>使用 <code>--augustus_gff</code> 传入预计算结果，跳过 <code>augustus_parallel.py</code>，直接进入 EVM 整合：</p>
+    <div class="code-wrap">
+      <button class="copy-btn" onclick="copyCode(this)">复制</button>
+      <pre>cd /home/liuzifeng/2test_funannotate
+
+singularity exec \
+  --bind ~/augustus_config:/usr/share/augustus/config \
+  ~/soft/funannotate_latest.sif \
+  bash -c 'export PATH=/home/liuzifeng/soft/genemark/gmes_linux_64_4:$PATH \
+           && /venv/bin/funannotate "$@"' -- \
+  predict \
+  -i masked.fasta \
+  -o ./fun_1 \
+  --species "Fungus_sp_MAG1" \
+  --busco_seed_species botrytis_cinerea \
+  --cpus 30 \
+  --augustus_gff fun_1/predict_misc/augustus.gff3</pre>
+    </div>
+
+    <h3 class="sub">predict 各步骤运行结果</h3>
+    <table class="info-table">
+      <tr><th>工具</th><th>结果</th></tr>
+      <tr><td>exonerate（蛋白同源）</td><td><span class="tag tag-warn">跳过</span> GLib 符号缺失，0 alignments，流程继续</td></tr>
+      <tr><td>GeneMark-ES</td><td><span class="tag tag-ok">✓</span> 14,939 个基因预测（自训练）</td></tr>
+      <tr><td>BUSCO 训练</td><td><span class="tag tag-ok">✓</span> 953 个验证模型（dikarya 数据库）</td></tr>
+      <tr><td>Augustus 训练</td><td><span class="tag tag-ok">✓</span> fungus_sp_mag1 参数完成训练</td></tr>
+      <tr><td>Augustus 预测</td><td><span class="tag tag-ok">✓</span> 通过 --augustus_gff 传入预计算结果</td></tr>
+      <tr><td>SNAP / GlimmerHMM</td><td><span class="tag tag-ok">✓</span> 基于 BUSCO 训练正常运行</td></tr>
+      <tr><td>EvidenceModeler</td><td><span class="tag tag-ok">✓</span> 整合所有证据，输出最终基因模型</td></tr>
+    </table>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- annotate -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <h2 class="sec" id="annotate"><span class="num"></span>funannotate annotate — 功能注释</h2>
+
+  <div class="card">
+    <div class="code-wrap">
+      <button class="copy-btn" onclick="copyCode(this)">复制</button>
+      <pre>cd /home/liuzifeng/2test_funannotate
+
+singularity exec \
+  --bind ~/augustus_config:/usr/share/augustus/config \
+  ~/soft/funannotate_latest.sif \
+  bash -c 'export PATH=/home/liuzifeng/soft/genemark/gmes_linux_64_4:$PATH \
+           && /venv/bin/funannotate "$@"' -- \
+  annotate \
+  -i ./fun_1 \
+  --cpus 30</pre>
+    </div>
+    <div class="alert alert-success">
+      <strong>输出目录：<code>./fun_1/annotate_results/</code></strong>
+      包含 GFF3 基因注释、GenBank 格式文件、蛋白质序列（FASTA）、GO / PFAM / InterPro 功能注释表格。
+    </div>
+  </div>
+
+  <!-- 成功 banner -->
+  <div class="success-banner">
+    <h3>注释流程全部完成 ✓</h3>
+    <p>funannotate predict + annotate 均成功运行。基因组：Fungus_sp_MAG1，36.9 Mb，5,410 scaffolds。结果输出至 <code>./fun_1/</code>。</p>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- 时间线 -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <h2 class="sec" id="summary"><span class="num"></span>根因总结与排查时间线</h2>
+
+  <div class="card">
+    <h3 class="sub">排查时间线</h3>
+    <div class="timeline" style="margin-top:16px;">
+
+      <div class="tl-item">
+        <div class="tl-dot fail"></div>
+        <div class="tl-time">May 21 17:57</div>
+        <div class="tl-title">首次运行（测试用小基因组）</div>
+        <div class="tl-body">exonerate 报 GLib 符号错误；GeneMark-ES 因基因组仅 516 kb 过小而失败（<code>data/training.fna</code> 无法生成）。</div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot fail"></div>
+        <div class="tl-time">May 21 22:10</div>
+        <div class="tl-title">换用完整基因组 masked.fasta 重新运行</div>
+        <div class="tl-body">GeneMark ✓（14,939），BUSCO ✓（953），Augustus 并行失败：<code>AUGUSTUS_CONFIG_PATH</code> 只读，训练参数无法写入，5,410 任务全部失败。</div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot fail"></div>
+        <div class="tl-time">May 22 11:23</div>
+        <div class="tl-title">加入 --bind 挂载可写 augustus config</div>
+        <div class="tl-body">系统 config 可写，但 <code>augustus_parallel.py</code> 实际使用的是本地 config（<code>LOCALAUGUSTUS</code>），本地 config 不完整，仍然失败。</div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot fail"></div>
+        <div class="tl-time">May 22 15:07</div>
+        <div class="tl-title">rsync 补全本地 config + 手动验证 augustus 正常</div>
+        <div class="tl-body">手动调用 augustus 成功，但 funannotate 的 <code>augustus_parallel.py</code> 内部 multiprocessing worker 静默失败（1 秒内完成 5,410 任务），依旧失败。</div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot warn"></div>
+        <div class="tl-time">May 22 15:54</div>
+        <div class="tl-title">查看 augustus-parallel.log，定位根因</div>
+        <div class="tl-body">日志显示 "using 2 CPUs, 1s 完成 5410 任务"，确认 multiprocessing worker 进程在 Singularity 环境下静默崩溃，<code>augustus_parallel.py</code> 本身存在 bug。</div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot success"></div>
+        <div class="tl-time">May 22 下午</div>
+        <div class="tl-title">自定义并行脚本绕过问题 ✓</div>
+        <div class="tl-body">自定义 <code>run_augustus_parallel.py</code>，直接用 <code>subprocess + Pool(30)</code> 并行调用 augustus，生成 augustus.gff3 成功。</div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot success"></div>
+        <div class="tl-time">May 22 下午</div>
+        <div class="tl-title">funannotate predict + annotate 全部完成 ✓</div>
+        <div class="tl-body">以 <code>--augustus_gff</code> 传入预计算结果，predict 顺利完成；随后 annotate 成功，注释流程全部结束。</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 经验总结 -->
+  <div class="card" style="margin-top:18px;">
+    <h3 class="sub">关键经验总结</h3>
+    <table class="sum-table">
+      <thead>
+        <tr><th>问题</th><th>根本原因</th><th>解决方案</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Augustus 预测全部失败</td>
+          <td>Singularity 容器内 <code>/usr/share/augustus/config</code> 只读，训练参数无法写入</td>
+          <td><code>cp -r</code> 提取到宿主机，<code>--bind ~/augustus_config:/usr/share/augustus/config</code> 挂载</td>
+        </tr>
+        <tr>
+          <td>本地 augustus config 不完整</td>
+          <td>BUSCO 步骤只创建含物种参数的最小 config，缺少全局配置文件</td>
+          <td><code>rsync -av --ignore-existing</code> 从系统 config 补全，保留已训练参数</td>
+        </tr>
+        <tr>
+          <td><code>augustus_parallel.py</code> multiprocessing 静默失败</td>
+          <td>funannotate v1.8.17 在 Singularity 容器内 worker 进程静默崩溃，1秒完成5410任务</td>
+          <td>自定义脚本用 <code>subprocess.run + Pool</code> 直接并行调用 augustus，绕过内置脚本</td>
+        </tr>
+        <tr>
+          <td>exonerate GLib 符号缺失</td>
+          <td>容器内 exonerate 链接 GLib ≥ 2.76，宿主机 GLib 版本不含此符号</td>
+          <td>非致命，忽略即可；需修复则替换兼容版本 exonerate</td>
+        </tr>
+        <tr>
+          <td>每次重跑都重训 Augustus</td>
+          <td>funannotate predict 没有缓存 Augustus 训练步骤</td>
+          <td><code>--augustus_gff</code> 传入预计算 GFF3，完全跳过 Augustus 预测步骤</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<footer>Fungus_sp_MAG1 · funannotate v1.8.17 · Singularity · 2026-05-22</footer>
+
+<script>
+function copyCode(btn) {
+  const pre = btn.nextElementSibling;
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '已复制 ✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = '已复制 ✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>

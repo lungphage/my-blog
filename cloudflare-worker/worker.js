@@ -2,8 +2,8 @@
 // 功能：记录访客 + 统计分析 + 回头访客追踪 + 邮件订阅 + 新文章通知
 
 const ADMIN_PASSWORD = "zzqliu1995"; // 管理密码
-const RESEND_API_KEY = ""; // 在 Cloudflare Worker 环境变量中设置 RESEND_API_KEY
-const SENDER_EMAIL = "noreply@your-domain.com"; // Resend 验证过的发件邮箱
+const BREVO_API_KEY = ""; // 在 Cloudflare Worker 环境变量中设置 BREVO_API_KEY
+const SENDER_EMAIL = "noreply@blog-notification.com"; // Brevo 发件地址
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
@@ -202,11 +202,11 @@ async function handleNotify(request, env) {
     return new Response(JSON.stringify({ error: "缺少 title 或 url" }), { status: 400, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } });
   }
 
-  const apiKey = env.RESEND_API_KEY || RESEND_API_KEY;
+  const apiKey = env.BREVO_API_KEY || BREVO_API_KEY;
   const sender = env.SENDER_EMAIL || SENDER_EMAIL;
 
   if (!apiKey) {
-    return new Response(JSON.stringify({ error: "未配置 RESEND_API_KEY，请在 Worker 环境变量中设置" }), { status: 500, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ error: "未配置 BREVO_API_KEY，请在 Worker 环境变量中设置" }), { status: 500, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } });
   }
 
   let subscribers = [];
@@ -219,17 +219,17 @@ async function handleNotify(request, env) {
   const results = [];
   for (const sub of subscribers) {
     try {
-      const res = await fetch("https://api.resend.com/emails", {
+      const res = await fetch("https://api.brevo.com/v3/smtp/email", {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${apiKey}`,
+          "api-key": apiKey,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: sender,
-          to: sub.email,
+          sender: { name: "流光镜影", email: sender },
+          to: [{ email: sub.email }],
           subject: `流光镜影 · 新文章：${title}`,
-          html: `
+          htmlContent: `
             <div style="font-family:'Segoe UI','Microsoft YaHei',sans-serif;max-width:600px;margin:0 auto;padding:24px;">
               <h2 style="color:#805ad5;border-bottom:2px solid #805ad5;padding-bottom:8px;">流光镜影 · 新文章通知</h2>
               <h3 style="color:#2d3748;">${title}</h3>
@@ -242,7 +242,7 @@ async function handleNotify(request, env) {
         }),
       });
       const data = await res.json();
-      results.push({ email: sub.email, ok: res.ok, id: data.id || data.message });
+      results.push({ email: sub.email, ok: res.ok, id: data.messageId || data.message || data.code });
     } catch (e) {
       results.push({ email: sub.email, ok: false, error: e.message });
     }

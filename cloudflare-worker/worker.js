@@ -1,7 +1,7 @@
 // Cloudflare Worker — 访客记录 API（增强版）
 // 功能：记录访客 + 统计分析 + 回头访客追踪
 
-const ADMIN_PASSWORD = "your_password_here"; // 改成你的密码
+const ADMIN_PASSWORD = "zzqliu1995"; // 管理密码
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",

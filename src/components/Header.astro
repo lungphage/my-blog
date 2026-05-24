@@ -14,55 +14,122 @@ import HeaderLink from './HeaderLink.astro';
 		<div class="right-actions">
 			<a href="https://github.com/lungphage/my-blog" target="_blank" class="social-link">
 				<span class="sr-only">GitHub</span>
-				<svg viewBox="0 0 16 16" aria-hidden="true" width="28" height="28"
-					><path
-						fill="currentColor"
-						d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"
-					></path></svg
-				>
+				<svg viewBox="0 0 16 16" aria-hidden="true" width="28" height="28"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
 			</a>
-			<button class="theme-toggle" id="theme-toggle" aria-label="切换主题">
-				<svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-				<svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+			<button class="settings-btn" id="settings-btn" aria-label="设置">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
 			</button>
 		</div>
 	</nav>
 </header>
+
+<div class="settings-overlay" id="settings-overlay"></div>
+<div class="settings-panel" id="settings-panel">
+	<div class="settings-header">
+		<h3>⚙ 设置</h3>
+		<button class="settings-close" id="settings-close">&times;</button>
+	</div>
+
+	<div class="settings-section">
+		<div class="settings-label">主题模式</div>
+		<div class="mode-toggle">
+			<button class="mode-btn" data-mode="light" title="浅色">
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+			</button>
+			<button class="mode-btn" data-mode="dark" title="深色">
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+			</button>
+		</div>
+	</div>
+
+	<div class="settings-section">
+		<div class="settings-label">配色方案</div>
+		<div class="theme-swatches">
+			<div class="swatch swatch-purple" data-accent="purple" title="紫色"></div>
+			<div class="swatch swatch-blue" data-accent="blue" title="蓝色"></div>
+			<div class="swatch swatch-green" data-accent="green" title="绿色"></div>
+			<div class="swatch swatch-orange" data-accent="orange" title="橙色"></div>
+			<div class="swatch swatch-pink" data-accent="pink" title="粉色"></div>
+			<div class="swatch swatch-teal" data-accent="teal" title="青色"></div>
+		</div>
+	</div>
+
+	<div class="settings-section">
+		<div class="settings-label">字体大小</div>
+		<div class="option-group">
+			<button class="option-btn" data-font="small">小</button>
+			<button class="option-btn active" data-font="medium">中</button>
+			<button class="option-btn" data-font="large">大</button>
+		</div>
+	</div>
+
+	<div class="settings-section">
+		<div class="settings-label">页面宽度</div>
+		<div class="option-group">
+			<button class="option-btn active" data-width="narrow">窄</button>
+			<button class="option-btn" data-width="wide">宽</button>
+		</div>
+	</div>
+</div>
+
 <script>
-	function getTheme() {
-		if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
-			return localStorage.getItem('theme');
-		}
-		return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+	const root = document.documentElement;
+	const overlay = document.getElementById('settings-overlay')!;
+	const panel = document.getElementById('settings-panel')!;
+	const btn = document.getElementById('settings-btn')!;
+	const closeBtn = document.getElementById('settings-close')!;
+
+	function get(k: string, d: string) { return localStorage.getItem(k) || d; }
+	function set(k: string, v: string) { localStorage.setItem(k, v); }
+
+	function applySettings() {
+		const theme = get('theme', 'light');
+		const accent = get('accent', 'purple');
+		const font = get('font', 'medium');
+		const width = get('width', 'narrow');
+
+		root.setAttribute('data-theme', theme);
+		root.setAttribute('data-accent', accent);
+		root.setAttribute('data-font', font);
+		root.setAttribute('data-width', width);
+
+		document.querySelectorAll('.mode-btn').forEach(b => {
+			b.classList.toggle('active', b.getAttribute('data-mode') === theme);
+		});
+		document.querySelectorAll('.swatch').forEach(s => {
+			s.classList.toggle('active', s.getAttribute('data-accent') === accent);
+		});
+		document.querySelectorAll('[data-font]').forEach(b => {
+			if (b.classList.contains('option-btn')) b.classList.toggle('active', b.getAttribute('data-font') === font);
+		});
+		document.querySelectorAll('[data-width]').forEach(b => {
+			if (b.classList.contains('option-btn')) b.classList.toggle('active', b.getAttribute('data-width') === width);
+		});
 	}
 
-	function setTheme(theme: string) {
-		document.documentElement.setAttribute('data-theme', theme);
-		localStorage.setItem('theme', theme);
-		updateIcons(theme);
-	}
+	function openPanel() { overlay.classList.add('open'); panel.classList.add('open'); }
+	function closePanel() { overlay.classList.remove('open'); panel.classList.remove('open'); }
 
-	function updateIcons(theme: string) {
-		const sunIcon = document.querySelector('.sun-icon') as HTMLElement;
-		const moonIcon = document.querySelector('.moon-icon') as HTMLElement;
-		if (sunIcon && moonIcon) {
-			if (theme === 'dark') {
-				sunIcon.style.display = 'none';
-				moonIcon.style.display = 'block';
-			} else {
-				sunIcon.style.display = 'block';
-				moonIcon.style.display = 'none';
-			}
-		}
-	}
+	btn.addEventListener('click', openPanel);
+	closeBtn.addEventListener('click', closePanel);
+	overlay.addEventListener('click', closePanel);
 
-	setTheme(getTheme());
-
-	document.getElementById('theme-toggle')?.addEventListener('click', () => {
-		const current = document.documentElement.getAttribute('data-theme') || 'light';
-		setTheme(current === 'dark' ? 'light' : 'dark');
+	document.querySelectorAll('.mode-btn').forEach(b => {
+		b.addEventListener('click', () => { set('theme', b.getAttribute('data-mode')!); applySettings(); });
 	});
+	document.querySelectorAll('.swatch').forEach(s => {
+		s.addEventListener('click', () => { set('accent', s.getAttribute('data-accent')!); applySettings(); });
+	});
+	document.querySelectorAll('.option-btn[data-font]').forEach(b => {
+		b.addEventListener('click', () => { set('font', b.getAttribute('data-font')!); applySettings(); });
+	});
+	document.querySelectorAll('.option-btn[data-width]').forEach(b => {
+		b.addEventListener('click', () => { set('width', b.getAttribute('data-width')!); applySettings(); });
+	});
+
+	applySettings();
 </script>
+
 <style>
 	header {
 		margin: 0;
@@ -71,15 +138,8 @@ import HeaderLink from './HeaderLink.astro';
 		box-shadow: 0 2px 8px rgba(var(--black), 5%);
 		transition: background 0.3s;
 	}
-	h2 {
-		margin: 0;
-		font-size: 1em;
-	}
-
-	h2 a,
-	h2 a.active {
-		text-decoration: none;
-	}
+	h2 { margin: 0; font-size: 1em; }
+	h2 a, h2 a.active { text-decoration: none; }
 	nav {
 		display: flex;
 		align-items: center;
@@ -98,19 +158,15 @@ import HeaderLink from './HeaderLink.astro';
 	.right-actions {
 		display: flex;
 		align-items: center;
-		gap: 0.5em;
+		gap: 0.3em;
 	}
 	.social-link {
 		display: flex;
 		padding: 0.5em;
 		color: rgb(var(--gray-dark));
 	}
-	.social-link:hover {
-		color: var(--accent);
-	}
+	.social-link:hover { color: var(--accent); }
 	@media (max-width: 720px) {
-		.social-link {
-			display: none;
-		}
+		.social-link { display: none; }
 	}
 </style>

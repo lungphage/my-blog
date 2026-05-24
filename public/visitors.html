@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>访客记录 — 流光镜影</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: "Segoe UI", "Microsoft YaHei", sans-serif; background: #0f0f1a; color: #e0e0f0; min-height: 100vh; }
     .top-bar { background: #1a1a2e; padding: 0.8em 1.5em; border-bottom: 1px solid #2a2a4a; display: flex; align-items: center; gap: 1em; position: sticky; top: 0; z-index: 100; }
-    .top-bar a { color: #a78bfa; text-decoration: none; font-size: 0.95em; }
-    .top-bar a:hover { text-decoration: underline; }
+    .top-bar a { color: #a78bfa; text-decoration: none; }
     .top-bar .site-name { color: #718096; font-size: 0.85em; }
-    .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
     h1 { color: #a78bfa; font-size: 1.5em; margin-bottom: 20px; }
 
     .login-box { max-width: 400px; margin: 100px auto; text-align: center; }
@@ -21,21 +21,30 @@
     .login-box button:hover { background: #6b46c1; }
     .error { color: #fc8181; font-size: 0.9em; margin-top: 8px; }
 
-    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 24px; }
     .stat-card { background: #1a1a2e; border: 1px solid #2a2a4a; border-radius: 10px; padding: 16px; text-align: center; }
     .stat-num { font-size: 2em; font-weight: 700; color: #a78bfa; }
     .stat-label { font-size: 0.82em; color: #718096; margin-top: 4px; }
 
-    .toolbar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
-    .toolbar input { padding: 8px 14px; border-radius: 8px; border: 1px solid #3a3a5c; background: #1a1a2e; color: #e0e0f0; font-size: 0.9em; flex: 1; min-width: 200px; }
-    .toolbar button { padding: 8px 16px; border-radius: 8px; border: 1px solid #3a3a5c; background: #252540; color: #e0e0f0; cursor: pointer; font-size: 0.9em; }
-    .toolbar button:hover { border-color: #805ad5; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .tab-btn { padding: 8px 16px; border-radius: 8px; border: 1px solid #3a3a5c; background: #1a1a2e; color: #a0a0c0; cursor: pointer; font-size: 0.88em; transition: all 0.2s; }
+    .tab-btn:hover { border-color: #805ad5; color: #a78bfa; }
+    .tab-btn.active { background: #805ad5; color: #fff; border-color: #805ad5; }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 24px; }
+    .chart-box { background: #1a1a2e; border: 1px solid #2a2a4a; border-radius: 12px; padding: 20px; }
+    .chart-box h3 { color: #a78bfa; font-size: 1em; margin-bottom: 12px; }
+    .chart-box canvas { max-height: 300px; }
 
     table { width: 100%; border-collapse: collapse; background: #1a1a2e; border-radius: 10px; overflow: hidden; }
-    th { background: #252540; color: #a78bfa; padding: 10px 14px; text-align: left; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.05em; }
+    th { background: #252540; color: #a78bfa; padding: 10px 14px; text-align: left; font-size: 0.85em; }
     td { padding: 10px 14px; border-bottom: 1px solid #2a2a4a; font-size: 0.88em; }
     tr:hover td { background: #1e1e35; }
-    .ip-cell { font-family: monospace; color: #63b3ed; }
+    .ip-cell { font-family: monospace; color: #63b3ed; cursor: pointer; }
+    .ip-cell:hover { text-decoration: underline; }
     .time-cell { color: #718096; font-size: 0.82em; }
     .page-cell { color: #68d391; }
     .device-tag { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.76em; font-weight: 600; }
@@ -43,6 +52,24 @@
     .device-phone { background: #2f4a3a; color: #9ae6b4; }
     .device-tablet { background: #4a3a2f; color: #fbd38d; }
     .empty { text-align: center; padding: 40px; color: #718096; }
+    .bar-cell { position: relative; }
+    .bar-fill { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(128,90,213,0.15); border-radius: 4px; }
+
+    .toolbar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+    .toolbar input { padding: 8px 14px; border-radius: 8px; border: 1px solid #3a3a5c; background: #1a1a2e; color: #e0e0f0; font-size: 0.9em; flex: 1; min-width: 200px; }
+    .toolbar button { padding: 8px 16px; border-radius: 8px; border: 1px solid #3a3a5c; background: #252540; color: #e0e0f0; cursor: pointer; font-size: 0.9em; }
+    .toolbar button:hover { border-color: #805ad5; }
+
+    .ip-detail { background: #1a1a2e; border: 1px solid #2a2a4a; border-radius: 12px; padding: 20px; margin-bottom: 20px; display: none; }
+    .ip-detail.show { display: block; }
+    .ip-detail h3 { color: #a78bfa; margin-bottom: 12px; }
+    .ip-detail .close-btn { float: right; background: none; border: none; color: #718096; cursor: pointer; font-size: 1.2em; }
+
+    .ref-list { list-style: none; }
+    .ref-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid #2a2a4a; }
+    .ref-item:last-child { border-bottom: none; }
+    .ref-name { color: #63b3ed; }
+    .ref-count { color: #a78bfa; font-weight: 700; }
   </style>
 </head>
 <body>
@@ -56,26 +83,72 @@
 
     <div class="stats" id="stats"></div>
 
-    <div class="toolbar">
-      <input type="text" id="search" placeholder="搜索 IP、页面、浏览器..." />
-      <button onclick="loadLogs()">🔄 刷新</button>
-      <button onclick="exportCSV()">📥 导出 CSV</button>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="trend">📈 趋势</button>
+      <button class="tab-btn" data-tab="pages">🔥 热门页面</button>
+      <button class="tab-btn" data-tab="devices">📱 设备分布</button>
+      <button class="tab-btn" data-tab="sources">🔗 来源分析</button>
+      <button class="tab-btn" data-tab="repeat">🔁 回头访客</button>
+      <button class="tab-btn" data-tab="all">📋 全部记录</button>
     </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>时间</th>
-          <th>IP</th>
-          <th>国家</th>
-          <th>设备</th>
-          <th>操作系统</th>
-          <th>浏览器</th>
-          <th>访问页面</th>
-        </tr>
-      </thead>
-      <tbody id="logs-body"></tbody>
-    </table>
+    <!-- 趋势图 -->
+    <div class="panel active" id="panel-trend">
+      <div class="chart-grid">
+        <div class="chart-box"><h3>每日访问量</h3><canvas id="chart-daily"></canvas></div>
+        <div class="chart-box"><h3>浏览器分布</h3><canvas id="chart-browser"></canvas></div>
+      </div>
+    </div>
+
+    <!-- 热门页面 -->
+    <div class="panel" id="panel-pages">
+      <div class="chart-box" style="max-width:800px;"><h3>页面访问排行</h3><canvas id="chart-pages"></canvas></div>
+    </div>
+
+    <!-- 设备分布 -->
+    <div class="panel" id="panel-devices">
+      <div class="chart-grid">
+        <div class="chart-box"><h3>设备类型</h3><canvas id="chart-device"></canvas></div>
+        <div class="chart-box"><h3>操作系统</h3><canvas id="chart-os"></canvas></div>
+      </div>
+    </div>
+
+    <!-- 来源分析 -->
+    <div class="panel" id="panel-sources">
+      <div class="chart-grid">
+        <div class="chart-box"><h3>访问来源</h3><canvas id="chart-ref"></canvas></div>
+        <div class="chart-box">
+          <h3>来源详情</h3>
+          <ul class="ref-list" id="ref-list"></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 回头访客 -->
+    <div class="panel" id="panel-repeat">
+      <div class="ip-detail" id="ip-detail">
+        <button class="close-btn" onclick="closeIPDetail()">✕</button>
+        <h3 id="ip-detail-title"></h3>
+        <table><thead><tr><th>时间</th><th>页面</th><th>设备</th><th>浏览器</th></tr></thead><tbody id="ip-detail-body"></tbody></table>
+      </div>
+      <table>
+        <thead><tr><th>IP</th><th>国家</th><th>访问次数</th><th>设备</th><th>浏览器</th><th>首次访问</th><th>最近访问</th></tr></thead>
+        <tbody id="repeat-body"></tbody>
+      </table>
+    </div>
+
+    <!-- 全部记录 -->
+    <div class="panel" id="panel-all">
+      <div class="toolbar">
+        <input type="text" id="search" placeholder="搜索 IP、页面、浏览器..." />
+        <button onclick="loadData()">🔄 刷新</button>
+        <button onclick="exportCSV()">📥 导出 CSV</button>
+      </div>
+      <table>
+        <thead><tr><th>时间</th><th>IP</th><th>国家</th><th>设备</th><th>操作系统</th><th>浏览器</th><th>页面</th><th>来源</th></tr></thead>
+        <tbody id="logs-body"></tbody>
+      </table>
+    </div>
   </div>
 
   <div class="login-box" id="login-box">
@@ -87,102 +160,190 @@
 
   <script>
     const WORKER_URL = "https://blog-visitor-tracker.liuzifeng1129662448.workers.dev";
-    let allLogs = [];
+    let allLogs = [], allStats = {};
+    let charts = {};
+
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+      });
+    });
 
     function doLogin() {
       const pw = document.getElementById("password").value;
-      fetch(WORKER_URL + "/logs", { headers: { "X-Admin-Password": pw } })
+      fetch(WORKER_URL + "/stats", { headers: { "X-Admin-Password": pw } })
         .then(r => r.json())
         .then(data => {
           if (data.ok) {
             sessionStorage.setItem("admin_pw", pw);
             document.getElementById("login-box").style.display = "none";
             document.getElementById("app").style.display = "";
+            allStats = data.stats;
             allLogs = data.logs;
-            render(allLogs);
+            renderStats();
+            renderCharts();
+            renderRepeat();
+            renderLogs(allLogs);
           } else {
             document.getElementById("login-error").textContent = "密码错误";
           }
         })
-        .catch(() => {
-          document.getElementById("login-error").textContent = "连接失败";
+        .catch(() => document.getElementById("login-error").textContent = "连接失败");
+    }
+
+    function loadData() {
+      const pw = sessionStorage.getItem("admin_pw");
+      if (!pw) return;
+      fetch(WORKER_URL + "/stats", { headers: { "X-Admin-Password": pw } })
+        .then(r => r.json())
+        .then(data => {
+          if (data.ok) { allStats = data.stats; allLogs = data.logs; renderStats(); renderCharts(); renderRepeat(); renderLogs(allLogs); }
         });
     }
 
-    function loadLogs() {
+    function renderStats() {
+      const s = allStats;
+      document.getElementById("stats").innerHTML = `
+        <div class="stat-card"><div class="stat-num">${s.total}</div><div class="stat-label">总访问</div></div>
+        <div class="stat-card"><div class="stat-num">${s.uniqueIPs}</div><div class="stat-label">独立访客</div></div>
+        <div class="stat-card"><div class="stat-num">${s.todayCount}</div><div class="stat-label">今日访问</div></div>
+        <div class="stat-card"><div class="stat-num">${s.todayIPs}</div><div class="stat-label">今日访客</div></div>
+        <div class="stat-card"><div class="stat-num">${s.repeatVisitors.length}</div><div class="stat-label">回头访客</div></div>
+      `;
+    }
+
+    const COLORS = ['#805ad5','#63b3ed','#68d391','#f6ad55','#fc8181','#f687b3','#4fd1c5','#fbd38d','#b794f4','#90cdf4'];
+
+    function renderCharts() {
+      // Destroy existing
+      Object.values(charts).forEach(c => c.destroy());
+      charts = {};
+
+      // Daily trend
+      const dailyLabels = allStats.daily.map(d => d[0].slice(5));
+      const dailyData = allStats.daily.map(d => d[1]);
+      charts.daily = new Chart(document.getElementById('chart-daily'), {
+        type: 'line', data: { labels: dailyLabels, datasets: [{ label: '访问量', data: dailyData, borderColor: '#805ad5', backgroundColor: 'rgba(128,90,213,0.1)', fill: true, tension: 0.4 }] },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#718096' } }, y: { ticks: { color: '#718096' }, beginAtZero: true } } }
+      });
+
+      // Browser
+      charts.browser = new Chart(document.getElementById('chart-browser'), {
+        type: 'doughnut', data: { labels: allStats.browsers.map(b => b[0]), datasets: [{ data: allStats.browsers.map(b => b[1]), backgroundColor: COLORS }] },
+        options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { color: '#a0a0c0' } } } }
+      });
+
+      // Pages
+      const topPages = allStats.pages.slice(0, 10);
+      charts.pages = new Chart(document.getElementById('chart-pages'), {
+        type: 'bar', data: { labels: topPages.map(p => p[0].length > 30 ? p[0].slice(0,30)+'...' : p[0]), datasets: [{ label: '访问量', data: topPages.map(p => p[1]), backgroundColor: '#805ad5' }] },
+        options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#718096' } }, y: { ticks: { color: '#a0a0c0' } } } }
+      });
+
+      // Device
+      charts.device = new Chart(document.getElementById('chart-device'), {
+        type: 'doughnut', data: { labels: allStats.devices.map(d => d[0]), datasets: [{ data: allStats.devices.map(d => d[1]), backgroundColor: ['#63b3ed','#68d391','#f6ad55'] }] },
+        options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { color: '#a0a0c0' } } } }
+      });
+
+      // OS
+      charts.os = new Chart(document.getElementById('chart-os'), {
+        type: 'doughnut', data: { labels: allStats.oses.map(o => o[0]), datasets: [{ data: allStats.oses.map(o => o[1]), backgroundColor: COLORS }] },
+        options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { color: '#a0a0c0' } } } }
+      });
+
+      // Referrers
+      charts.ref = new Chart(document.getElementById('chart-ref'), {
+        type: 'doughnut', data: { labels: allStats.referrers.map(r => r[0]), datasets: [{ data: allStats.referrers.map(r => r[1]), backgroundColor: COLORS }] },
+        options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { color: '#a0a0c0' } } } }
+      });
+
+      // Referrer list
+      const maxRef = Math.max(...allStats.referrers.map(r => r[1]), 1);
+      document.getElementById('ref-list').innerHTML = allStats.referrers.map(r =>
+        `<li class="ref-item"><span class="ref-name">${r[0]}</span><span class="ref-count">${r[1]} 次</span></li>`
+      ).join('');
+    }
+
+    function renderRepeat() {
+      const body = document.getElementById('repeat-body');
+      if (allStats.repeatVisitors.length === 0) {
+        body.innerHTML = '<tr><td colspan="7" class="empty">暂无回头访客</td></tr>';
+        return;
+      }
+      body.innerHTML = allStats.repeatVisitors.map(v => {
+        const dc = v.device === "手机" ? "device-phone" : v.device === "平板" ? "device-tablet" : "device-pc";
+        return `<tr>
+          <td class="ip-cell" onclick="showIPDetail('${v.ip}')">${v.ip}</td>
+          <td>${v.country || '未知'}</td>
+          <td style="font-weight:700;color:#a78bfa">${v.count}</td>
+          <td><span class="device-tag ${dc}">${v.device || '未知'}</span></td>
+          <td>${v.browser || '未知'}</td>
+          <td class="time-cell">${new Date(v.first).toLocaleString('zh-CN')}</td>
+          <td class="time-cell">${new Date(v.last).toLocaleString('zh-CN')}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    function showIPDetail(ip) {
       const pw = sessionStorage.getItem("admin_pw");
-      if (!pw) return;
-      fetch(WORKER_URL + "/logs", { headers: { "X-Admin-Password": pw } })
+      fetch(WORKER_URL + "/ip?ip=" + encodeURIComponent(ip), { headers: { "X-Admin-Password": pw } })
         .then(r => r.json())
         .then(data => {
           if (data.ok) {
-            allLogs = data.logs;
-            render(allLogs);
+            document.getElementById('ip-detail').classList.add('show');
+            document.getElementById('ip-detail-title').textContent = `IP: ${ip} (${data.history.length} 次访问)`;
+            document.getElementById('ip-detail-body').innerHTML = data.history.map(h => {
+              const dc = h.device === "手机" ? "device-phone" : h.device === "平板" ? "device-tablet" : "device-pc";
+              return `<tr><td class="time-cell">${new Date(h.time).toLocaleString('zh-CN')}</td><td class="page-cell">${h.page}</td><td><span class="device-tag ${dc}">${h.device}</span></td><td>${h.browser}</td></tr>`;
+            }).join('');
           }
         });
     }
 
-    function render(logs) {
-      // Stats
-      const uniqueIPs = new Set(logs.map(l => l.ip)).size;
-      const uniquePages = new Set(logs.map(l => l.page)).size;
-      const today = new Date().toISOString().slice(0, 10);
-      const todayCount = logs.filter(l => l.time?.startsWith(today)).length;
-      document.getElementById("stats").innerHTML = `
-        <div class="stat-card"><div class="stat-num">${logs.length}</div><div class="stat-label">总访问</div></div>
-        <div class="stat-card"><div class="stat-num">${uniqueIPs}</div><div class="stat-label">独立访客</div></div>
-        <div class="stat-card"><div class="stat-num">${todayCount}</div><div class="stat-label">今日访问</div></div>
-        <div class="stat-card"><div class="stat-num">${uniquePages}</div><div class="stat-label">访问页面</div></div>
-      `;
+    function closeIPDetail() { document.getElementById('ip-detail').classList.remove('show'); }
 
-      // Table
+    function renderLogs(logs) {
       const tbody = document.getElementById("logs-body");
-      if (logs.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="empty">暂无记录</td></tr>';
-        return;
-      }
+      if (logs.length === 0) { tbody.innerHTML = '<tr><td colspan="8" class="empty">暂无记录</td></tr>'; return; }
       tbody.innerHTML = logs.map(l => {
         const t = l.time ? new Date(l.time).toLocaleString("zh-CN") : "未知";
         const dc = l.device === "手机" ? "device-phone" : l.device === "平板" ? "device-tablet" : "device-pc";
+        const ref = l.referrer ? (() => { try { return new URL(l.referrer).hostname; } catch { return '其他'; } })() : '直接访问';
         return `<tr>
           <td class="time-cell">${t}</td>
-          <td class="ip-cell">${l.ip || "未知"}</td>
-          <td>${l.country || "未知"}</td>
-          <td><span class="device-tag ${dc}">${l.device || "未知"}</span></td>
-          <td>${l.os || "未知"}</td>
-          <td>${l.browser || "未知"}</td>
-          <td class="page-cell">${l.page || "/"}</td>
+          <td class="ip-cell" onclick="showIPDetail('${l.ip}')">${l.ip || '未知'}</td>
+          <td>${l.country || '未知'}</td>
+          <td><span class="device-tag ${dc}">${l.device || '未知'}</span></td>
+          <td>${l.os || '未知'}</td>
+          <td>${l.browser || '未知'}</td>
+          <td class="page-cell">${l.page || '/'}</td>
+          <td style="color:#718096;font-size:0.82em">${ref}</td>
         </tr>`;
-      }).join("");
+      }).join('');
     }
 
     document.getElementById("search").addEventListener("input", function () {
       const q = this.value.toLowerCase();
-      if (!q) { render(allLogs); return; }
-      const filtered = allLogs.filter(l =>
-        (l.ip || "").toLowerCase().includes(q) ||
-        (l.page || "").toLowerCase().includes(q) ||
-        (l.browser || "").toLowerCase().includes(q) ||
-        (l.os || "").toLowerCase().includes(q) ||
-        (l.country || "").toLowerCase().includes(q)
-      );
-      render(filtered);
+      if (!q) { renderLogs(allLogs); return; }
+      renderLogs(allLogs.filter(l =>
+        (l.ip||"").toLowerCase().includes(q) || (l.page||"").toLowerCase().includes(q) ||
+        (l.browser||"").toLowerCase().includes(q) || (l.os||"").toLowerCase().includes(q) ||
+        (l.country||"").toLowerCase().includes(q) || (l.referrer||"").toLowerCase().includes(q)
+      ));
     });
 
     function exportCSV() {
-      const rows = [["时间", "IP", "国家", "设备", "操作系统", "浏览器", "页面"]];
-      allLogs.forEach(l => {
-        rows.push([l.time, l.ip, l.country, l.device, l.os, l.browser, l.page]);
-      });
-      const csv = rows.map(r => r.join(",")).join("\n");
-      const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "visitor-logs.csv";
-      a.click();
+      const rows = [["时间","IP","国家","设备","操作系统","浏览器","页面","来源"]];
+      allLogs.forEach(l => rows.push([l.time,l.ip,l.country,l.device,l.os,l.browser,l.page,l.referrer]));
+      const blob = new Blob(["\ufeff" + rows.map(r => r.join(",")).join("\n")], { type: "text/csv;charset=utf-8" });
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "visitor-logs.csv"; a.click();
     }
 
-    // Auto-login if password saved
     if (sessionStorage.getItem("admin_pw")) doLogin();
   </script>
 </body>

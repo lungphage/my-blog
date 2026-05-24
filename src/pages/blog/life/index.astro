@@ -1,0 +1,80 @@
+---
+import BaseHead from '../../../components/BaseHead.astro';
+import Footer from '../../../components/Footer.astro';
+import Header from '../../../components/Header.astro';
+import Giscus from '../../../components/Giscus.astro';
+import { SITE_TITLE } from '../../../consts';
+---
+
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<BaseHead title={`生活点滴 - ${SITE_TITLE}`} description="记录日常生活，支持评论和图片分享" />
+		<style>
+			main { width: var(--main-width); }
+			.page-title { margin-bottom: 0.3em; }
+			.page-subtitle { color: rgb(var(--gray)); margin-bottom: 2em; font-size: 1.05em; }
+			.life-section {
+				background: var(--card-bg);
+				border: 1px solid var(--card-border);
+				border-radius: 14px;
+				padding: 2em;
+				margin-bottom: 2em;
+				transition: background 0.3s, border-color 0.3s;
+			}
+			.life-section h2 {
+				margin: 0 0 0.5em 0;
+				font-size: 1.3em;
+				color: rgb(var(--black));
+			}
+			.life-section p {
+				color: rgb(var(--gray));
+				line-height: 1.8;
+			}
+			.image-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+				gap: 12px;
+				margin: 1em 0;
+			}
+			.image-grid img {
+				width: 100%;
+				border-radius: 10px;
+				cursor: pointer;
+				transition: transform 0.2s;
+			}
+			.image-grid img:hover { transform: scale(1.03); }
+			.placeholder {
+				text-align: center;
+				padding: 3em;
+				color: rgb(var(--gray));
+				font-size: 1.1em;
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<h1 class="page-title">🌿 生活点滴</h1>
+			<p class="page-subtitle">记录日常，分享美好瞬间</p>
+
+			<div class="life-section">
+				<h2>📸 照片墙</h2>
+				<p>在这里可以上传和分享生活照片。通过下方评论区上传图片，我会整理到照片墙中。</p>
+				<div class="image-grid">
+					<div class="placeholder">
+						<p>🖼️ 暂无照片</p>
+						<p style="font-size:0.85em;">通过评论区上传图片，我会添加到这里</p>
+					</div>
+				</div>
+			</div>
+
+			<div class="life-section">
+				<h2>💬 评论区</h2>
+				<p style="margin-bottom:1em;">欢迎留言分享你的生活故事，也可以上传图片~</p>
+				<Giscus id="life-comments" />
+			</div>
+		</main>
+		<Footer />
+	</body>
+</html>

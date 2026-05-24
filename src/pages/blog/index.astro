@@ -8,7 +8,9 @@ const categories = [
 	{ id: 'all', label: '全部' },
 	{ id: 'software', label: '软件安装' },
 	{ id: 'paper', label: '文献阅读' },
-	{ id: 'thoughts', label: '想法' },
+	{ id: 'life', label: '生活点滴' },
+	{ id: 'thoughts', label: '奇思妙想' },
+	{ id: 'review', label: '博客评论' },
 ];
 
 const articles = [
@@ -51,6 +53,22 @@ const articles = [
 		url: '/upload_process.html',
 		icon: '📝',
 		category: 'thoughts',
+	},
+	{
+		title: '生活点滴',
+		desc: '记录日常生活，支持评论和图片分享',
+		date: '2026年5月21日',
+		url: '/blog/life/',
+		icon: '🌿',
+		category: 'life',
+	},
+	{
+		title: '博客评论',
+		desc: '对博客的想法和建议，欢迎留言讨论',
+		date: '2026年5月21日',
+		url: '/blog/comments/',
+		icon: '💬',
+		category: 'review',
 	},
 ];
 ---
@@ -210,7 +228,7 @@ const articles = [
 								<div class="card-meta">
 									<span class="card-date">{article.date}</span>
 									<span class="card-badge">
-										{article.category === 'software' ? '软件安装' : article.category === 'paper' ? '文献阅读' : '想法'}
+										{article.category === 'software' ? '软件安装' : article.category === 'paper' ? '文献阅读' : article.category === 'life' ? '生活点滴' : article.category === 'review' ? '博客评论' : '奇思妙想'}
 									</span>
 								</div>
 								<p class="card-desc">{article.desc}</p>

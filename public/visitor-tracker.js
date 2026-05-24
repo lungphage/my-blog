@@ -3,7 +3,7 @@
 // 使用方法：在页面 <head> 中添加 <script src="/visitor-tracker.js"></script>
 
 (function () {
-  const WORKER_URL = "https://your-worker-name.workers.dev"; // 改成你的 Worker URL
+  const WORKER_URL = "https://blog-visitor-tracker.liuzifeng1129662448.workers.dev";
 
   function track() {
     const data = {

@@ -4,4 +4,4 @@ compatibility_date = "2024-01-01"
 
 [[kv_namespaces]]
 binding = "VISITOR_KV"
-id = "YOUR_KV_NAMESPACE_ID"  # 创建 KV 后填入
+id = "d5ead6099007420e9f5d158992d43ee7"

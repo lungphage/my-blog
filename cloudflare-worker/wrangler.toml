@@ -1,0 +1,7 @@
+name = "blog-visitor-tracker"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+[[kv_namespaces]]
+binding = "VISITOR_KV"
+id = "YOUR_KV_NAMESPACE_ID"  # 创建 KV 后填入

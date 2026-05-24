@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>访客记录 — 流光镜影</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Segoe UI", "Microsoft YaHei", sans-serif; background: #0f0f1a; color: #e0e0f0; min-height: 100vh; }
+    .top-bar { background: #1a1a2e; padding: 0.8em 1.5em; border-bottom: 1px solid #2a2a4a; display: flex; align-items: center; gap: 1em; position: sticky; top: 0; z-index: 100; }
+    .top-bar a { color: #a78bfa; text-decoration: none; font-size: 0.95em; }
+    .top-bar a:hover { text-decoration: underline; }
+    .top-bar .site-name { color: #718096; font-size: 0.85em; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    h1 { color: #a78bfa; font-size: 1.5em; margin-bottom: 20px; }
+
+    .login-box { max-width: 400px; margin: 100px auto; text-align: center; }
+    .login-box h2 { color: #a78bfa; margin-bottom: 20px; }
+    .login-box input { padding: 10px 16px; border-radius: 8px; border: 1px solid #3a3a5c; background: #1a1a2e; color: #e0e0f0; font-size: 1em; width: 100%; margin-bottom: 12px; }
+    .login-box button { padding: 10px 24px; border-radius: 8px; border: none; background: #805ad5; color: #fff; font-size: 1em; cursor: pointer; width: 100%; }
+    .login-box button:hover { background: #6b46c1; }
+    .error { color: #fc8181; font-size: 0.9em; margin-top: 8px; }
+
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px; }
+    .stat-card { background: #1a1a2e; border: 1px solid #2a2a4a; border-radius: 10px; padding: 16px; text-align: center; }
+    .stat-num { font-size: 2em; font-weight: 700; color: #a78bfa; }
+    .stat-label { font-size: 0.82em; color: #718096; margin-top: 4px; }
+
+    .toolbar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+    .toolbar input { padding: 8px 14px; border-radius: 8px; border: 1px solid #3a3a5c; background: #1a1a2e; color: #e0e0f0; font-size: 0.9em; flex: 1; min-width: 200px; }
+    .toolbar button { padding: 8px 16px; border-radius: 8px; border: 1px solid #3a3a5c; background: #252540; color: #e0e0f0; cursor: pointer; font-size: 0.9em; }
+    .toolbar button:hover { border-color: #805ad5; }
+
+    table { width: 100%; border-collapse: collapse; background: #1a1a2e; border-radius: 10px; overflow: hidden; }
+    th { background: #252540; color: #a78bfa; padding: 10px 14px; text-align: left; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.05em; }
+    td { padding: 10px 14px; border-bottom: 1px solid #2a2a4a; font-size: 0.88em; }
+    tr:hover td { background: #1e1e35; }
+    .ip-cell { font-family: monospace; color: #63b3ed; }
+    .time-cell { color: #718096; font-size: 0.82em; }
+    .page-cell { color: #68d391; }
+    .device-tag { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.76em; font-weight: 600; }
+    .device-pc { background: #2a4365; color: #90cdf4; }
+    .device-phone { background: #2f4a3a; color: #9ae6b4; }
+    .device-tablet { background: #4a3a2f; color: #fbd38d; }
+    .empty { text-align: center; padding: 40px; color: #718096; }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <a href="/blog/">← 返回博客</a>
+    <span class="site-name">流光镜影 · 访客记录</span>
+  </div>
+
+  <div class="container" id="app" style="display:none;">
+    <h1>📊 访客记录</h1>
+
+    <div class="stats" id="stats"></div>
+
+    <div class="toolbar">
+      <input type="text" id="search" placeholder="搜索 IP、页面、浏览器..." />
+      <button onclick="loadLogs()">🔄 刷新</button>
+      <button onclick="exportCSV()">📥 导出 CSV</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>时间</th>
+          <th>IP</th>
+          <th>国家</th>
+          <th>设备</th>
+          <th>操作系统</th>
+          <th>浏览器</th>
+          <th>访问页面</th>
+        </tr>
+      </thead>
+      <tbody id="logs-body"></tbody>
+    </table>
+  </div>
+
+  <div class="login-box" id="login-box">
+    <h2>🔒 访客记录</h2>
+    <input type="password" id="password" placeholder="输入管理密码" onkeydown="if(event.key==='Enter')doLogin()" />
+    <button onclick="doLogin()">登录</button>
+    <div class="error" id="login-error"></div>
+  </div>
+
+  <script>
+    const WORKER_URL = "https://your-worker-name.workers.dev"; // 改成你的 Worker URL
+    let allLogs = [];
+
+    function doLogin() {
+      const pw = document.getElementById("password").value;
+      fetch(WORKER_URL + "/logs", { headers: { "X-Admin-Password": pw } })
+        .then(r => r.json())
+        .then(data => {
+          if (data.ok) {
+            sessionStorage.setItem("admin_pw", pw);
+            document.getElementById("login-box").style.display = "none";
+            document.getElementById("app").style.display = "";
+            allLogs = data.logs;
+            render(allLogs);
+          } else {
+            document.getElementById("login-error").textContent = "密码错误";
+          }
+        })
+        .catch(() => {
+          document.getElementById("login-error").textContent = "连接失败";
+        });
+    }
+
+    function loadLogs() {
+      const pw = sessionStorage.getItem("admin_pw");
+      if (!pw) return;
+      fetch(WORKER_URL + "/logs", { headers: { "X-Admin-Password": pw } })
+        .then(r => r.json())
+        .then(data => {
+          if (data.ok) {
+            allLogs = data.logs;
+            render(allLogs);
+          }
+        });
+    }
+
+    function render(logs) {
+      // Stats
+      const uniqueIPs = new Set(logs.map(l => l.ip)).size;
+      const uniquePages = new Set(logs.map(l => l.page)).size;
+      const today = new Date().toISOString().slice(0, 10);
+      const todayCount = logs.filter(l => l.time?.startsWith(today)).length;
+      document.getElementById("stats").innerHTML = `
+        <div class="stat-card"><div class="stat-num">${logs.length}</div><div class="stat-label">总访问</div></div>
+        <div class="stat-card"><div class="stat-num">${uniqueIPs}</div><div class="stat-label">独立访客</div></div>
+        <div class="stat-card"><div class="stat-num">${todayCount}</div><div class="stat-label">今日访问</div></div>
+        <div class="stat-card"><div class="stat-num">${uniquePages}</div><div class="stat-label">访问页面</div></div>
+      `;
+
+      // Table
+      const tbody = document.getElementById("logs-body");
+      if (logs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="empty">暂无记录</td></tr>';
+        return;
+      }
+      tbody.innerHTML = logs.map(l => {
+        const t = l.time ? new Date(l.time).toLocaleString("zh-CN") : "未知";
+        const dc = l.device === "手机" ? "device-phone" : l.device === "平板" ? "device-tablet" : "device-pc";
+        return `<tr>
+          <td class="time-cell">${t}</td>
+          <td class="ip-cell">${l.ip || "未知"}</td>
+          <td>${l.country || "未知"}</td>
+          <td><span class="device-tag ${dc}">${l.device || "未知"}</span></td>
+          <td>${l.os || "未知"}</td>
+          <td>${l.browser || "未知"}</td>
+          <td class="page-cell">${l.page || "/"}</td>
+        </tr>`;
+      }).join("");
+    }
+
+    document.getElementById("search").addEventListener("input", function () {
+      const q = this.value.toLowerCase();
+      if (!q) { render(allLogs); return; }
+      const filtered = allLogs.filter(l =>
+        (l.ip || "").toLowerCase().includes(q) ||
+        (l.page || "").toLowerCase().includes(q) ||
+        (l.browser || "").toLowerCase().includes(q) ||
+        (l.os || "").toLowerCase().includes(q) ||
+        (l.country || "").toLowerCase().includes(q)
+      );
+      render(filtered);
+    });
+
+    function exportCSV() {
+      const rows = [["时间", "IP", "国家", "设备", "操作系统", "浏览器", "页面"]];
+      allLogs.forEach(l => {
+        rows.push([l.time, l.ip, l.country, l.device, l.os, l.browser, l.page]);
+      });
+      const csv = rows.map(r => r.join(",")).join("\n");
+      const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "visitor-logs.csv";
+      a.click();
+    }
+
+    // Auto-login if password saved
+    if (sessionStorage.getItem("admin_pw")) doLogin();
+  </script>
+</body>
+</html>

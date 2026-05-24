@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>访客追踪系统部署指南</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: "Segoe UI", "Microsoft YaHei", sans-serif; background: #f7f5ff; color: #2d3748; margin: 0; padding: 0; }
+    .top-bar { background: #fff; padding: 0.8em 1.5em; border-bottom: 1px solid #e9d8fd; display: flex; align-items: center; gap: 1em; position: sticky; top: 0; z-index: 100; }
+    .top-bar a { color: #553c9a; text-decoration: none; }
+    .top-bar .site-name { color: #718096; font-size: 0.85em; }
+    .container { max-width: 860px; margin: 0 auto; padding: 36px 24px; }
+    h1 { color: #44337a; font-size: 1.5em; border-bottom: 3px solid #805ad5; padding-bottom: 12px; margin-bottom: 24px; }
+    h2 { color: #553c9a; font-size: 1.15em; margin-top: 28px; margin-bottom: 12px; }
+    .step { background: #fff; border: 1px solid #e9d8fd; border-radius: 10px; padding: 20px 24px; margin: 16px 0; }
+    .step-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .step-num { background: #805ad5; color: #fff; border-radius: 50%; width: 32px; height: 32px; line-height: 32px; text-align: center; font-weight: 700; flex-shrink: 0; }
+    .step-title { font-weight: 700; color: #44337a; }
+    pre { background: #1a1a2e; color: #c9d1f7; padding: 14px 18px; border-radius: 8px; overflow-x: auto; font-size: 0.84em; line-height: 1.7; margin: 10px 0; }
+    code { background: #e9d8fd; color: #553c9a; padding: 2px 6px; border-radius: 4px; font-size: 0.87em; }
+    .note { background: #f3e8ff; border-left: 4px solid #805ad5; padding: 11px 15px; border-radius: 4px; margin: 12px 0; font-size: 0.91em; }
+    .warn { background: #fffaf0; border-left: 4px solid #dd6b20; padding: 11px 15px; border-radius: 4px; margin: 12px 0; font-size: 0.91em; }
+    .ok { background: #f0fff4; border-left: 4px solid #38a169; padding: 11px 15px; border-radius: 4px; margin: 12px 0; font-size: 0.91em; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.9em; }
+    th { background: #553c9a; color: #fff; padding: 8px 12px; text-align: left; }
+    td { padding: 8px 12px; border-bottom: 1px solid #e9d8fd; }
+    tr:nth-child(even) { background: #faf5ff; }
+    a { color: #553c9a; }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <a href="/blog/">← 返回博客</a>
+    <span class="site-name">流光镜影 · 部署指南</span>
+  </div>
+  <div class="container">
+
+<h1>访客追踪系统部署指南</h1>
+
+<h2>系统架构</h2>
+<table>
+  <tr><th>组件</th><th>文件</th><th>说明</th></tr>
+  <tr><td>Cloudflare Worker</td><td><code>cloudflare-worker/worker.js</code></td><td>访客记录 API，运行在 Cloudflare 边缘节点</td></tr>
+  <tr><td>前端追踪脚本</td><td><code>public/visitor-tracker.js</code></td><td>每个页面加载时自动上报访客信息</td></tr>
+  <tr><td>管理后台</td><td><code>public/visitors.html</code></td><td>查看访客记录（密码保护）</td></tr>
+</table>
+
+<h2>记录的信息</h2>
+<table>
+  <tr><th>字段</th><th>来源</th><th>说明</th></tr>
+  <tr><td><code>ip</code></td><td>请求头 <code>CF-Connecting-IP</code></td><td>访客真实 IP 地址</td></tr>
+  <tr><td><code>country</code></td><td>请求头 <code>CF-IPCountry</code></td><td>访客国家（Cloudflare 自动识别）</td></tr>
+  <tr><td><code>browser</code></td><td>User-Agent 解析</td><td>浏览器类型和版本</td></tr>
+  <tr><td><code>os</code></td><td>User-Agent 解析</td><td>操作系统</td></tr>
+  <tr><td><code>device</code></td><td>User-Agent 解析</td><td>设备类型（PC/手机/平板）</td></tr>
+  <tr><td><code>page</code></td><td>JavaScript</td><td>访问的页面路径</td></tr>
+  <tr><td><code>time</code></td><td>Worker</td><td>访问时间（ISO 8601）</td></tr>
+  <tr><td><code>referrer</code></td><td>JavaScript</td><td>来源页面</td></tr>
+</table>
+
+<h2>部署步骤</h2>
+
+<div class="step">
+  <div class="step-header">
+    <div class="step-num">1</div>
+    <div class="step-title">创建 KV 命名空间</div>
+  </div>
+  <p>在 Cloudflare Dashboard 中：</p>
+  <ol>
+    <li>登录 <a href="https://dash.cloudflare.com/" target="_blank">Cloudflare Dashboard</a></li>
+    <li>左侧菜单 → <strong>Workers & Pages</strong> → <strong>KV</strong></li>
+    <li>点击 <strong>Create a namespace</strong></li>
+    <li>名称填 <code>visitor-logs</code>，点击 Add</li>
+    <li>复制生成的 <strong>ID</strong></li>
+  </ol>
+</div>
+
+<div class="step">
+  <div class="step-header">
+    <div class="step-num">2</div>
+    <div class="step-title">创建 Worker</div>
+  </div>
+  <ol>
+    <li>在 <strong>Workers & Pages</strong> 页面点击 <strong>Create application</strong> → <strong>Create Worker</strong></li>
+    <li>名称填 <code>blog-visitor-tracker</code></li>
+    <li>点击 <strong>Deploy</strong>（先用默认代码）</li>
+    <li>进入 Worker 设置 → <strong>Variables</strong> → <strong>KV Namespace Bindings</strong></li>
+    <li>添加绑定：Variable name = <code>VISITOR_KV</code>，KV Namespace = 选刚创建的 <code>visitor-logs</code></li>
+    <li>回到 <strong>Settings</strong> → <strong>Triggers</strong> → 复制 Worker 的 URL（类似 <code>https://blog-visitor-tracker.xxx.workers.dev</code>）</li>
+  </ol>
+</div>
+
+<div class="step">
+  <div class="step-header">
+    <div class="step-num">3</div>
+    <div class="step-title">部署 Worker 代码</div>
+  </div>
+  <p>在 Worker 编辑页面，将默认代码替换为 <code>cloudflare-worker/worker.js</code> 的内容。</p>
+  <p>修改第 4 行的密码：</p>
+  <pre>const ADMIN_PASSWORD = "your_password_here"; // 改成你的密码</pre>
+  <p>点击 <strong>Save and deploy</strong>。</p>
+</div>
+
+<div class="step">
+  <div class="step-header">
+    <div class="step-num">4</div>
+    <div class="step-title">修改前端配置</div>
+  </div>
+  <p>修改 <code>public/visitor-tracker.js</code>，将 Worker URL 改成你的：</p>
+  <pre>const WORKER_URL = "https://blog-visitor-tracker.xxx.workers.dev";</pre>
+  <p>修改 <code>public/visitors.html</code>，同样更新 Worker URL：</p>
+  <pre>const WORKER_URL = "https://blog-visitor-tracker.xxx.workers.dev";</pre>
+</div>
+
+<div class="step">
+  <div class="step-header">
+    <div class="step-num">5</div>
+    <div class="step-title">提交并部署</div>
+  </div>
+<pre>cd C:\Users\11296\Documents\my-blog
+git add .
+git commit -m "feat: 访客追踪系统"
+git push</pre>
+  <div class="ok">
+    推送后 Cloudflare Pages 自动部署。访问 <code>/visitors.html</code> 输入密码查看访客记录。
+  </div>
+</div>
+
+<h2>与评论的关联</h2>
+<div class="note">
+  <strong>如何知道谁评论了？</strong><br>
+  Giscus 评论会显示评论者的 GitHub 用户名。你可以在管理后台 <code>/visitors.html</code> 查看同一时间段的访客 IP 和设备信息，通过时间戳和页面路径与 GitHub Discussions 中的评论进行匹配。<br><br>
+  <strong>GitHub 通知：</strong>有人评论时，你会收到 GitHub 通知（站内 + 邮件），可以立即回复。
+</div>
+
+<h2>文件清单</h2>
+<pre>
+cloudflare-worker/
+  worker.js        ← Worker 脚本（部署到 Cloudflare）
+  wrangler.toml    ← Worker 配置（可选，用 CLI 部署时需要）
+public/
+  visitor-tracker.js  ← 前端追踪脚本（已自动加载）
+  visitors.html       ← 访客记录管理后台
+src/components/
+  BaseHead.astro      ← 已添加追踪脚本引用
+</pre>
+
+  </div>
+</body>
+</html>

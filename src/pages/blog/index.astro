@@ -92,8 +92,28 @@ const articles = [
 			.tabs {
 				display: flex;
 				gap: 8px;
-				margin-bottom: 2em;
+				margin-bottom: 1.5em;
 				flex-wrap: wrap;
+			}
+			.search-box {
+				margin-bottom: 1.5em;
+			}
+			.search-box input {
+				width: 100%;
+				padding: 12px 18px;
+				border-radius: 10px;
+				border: 1px solid var(--card-border);
+				background: var(--card-bg);
+				color: rgb(var(--gray-dark));
+				font-size: 0.95em;
+				transition: border-color 0.2s, background 0.3s;
+			}
+			.search-box input:focus {
+				outline: none;
+				border-color: var(--accent);
+			}
+			.search-box input::placeholder {
+				color: rgb(var(--gray));
 			}
 			.tab {
 				padding: 8px 20px;
@@ -211,6 +231,9 @@ const articles = [
 		<main>
 			<h1 class="page-title">博客</h1>
 			<p class="page-subtitle">记录学习与研究的点滴</p>
+			<div class="search-box">
+				<input type="text" id="blog-search" placeholder="🔍 搜索文章标题、描述..." />
+			</div>
 			<div class="tabs">
 				{categories.map((cat) => (
 					<button class={`tab${cat.id === 'all' ? ' active' : ''}`} data-category={cat.id}>
@@ -240,20 +263,29 @@ const articles = [
 		</main>
 		<Footer />
 		<script>
+			let activeCategory = 'all';
+
+			function filterCards() {
+				const query = (document.getElementById('blog-search') as HTMLInputElement).value.toLowerCase();
+				document.querySelectorAll('.blog-card').forEach((card) => {
+					const cat = card.getAttribute('data-category');
+					const text = (card.textContent || '').toLowerCase();
+					const catMatch = activeCategory === 'all' || cat === activeCategory;
+					const searchMatch = !query || text.includes(query);
+					(card as HTMLElement).style.display = catMatch && searchMatch ? '' : 'none';
+				});
+			}
+
 			document.querySelectorAll('.tab').forEach((tab) => {
 				tab.addEventListener('click', () => {
 					document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
 					tab.classList.add('active');
-					const cat = tab.getAttribute('data-category');
-					document.querySelectorAll('.blog-card').forEach((card) => {
-						if (cat === 'all' || card.getAttribute('data-category') === cat) {
-							(card as HTMLElement).style.display = '';
-						} else {
-							(card as HTMLElement).style.display = 'none';
-						}
-					});
+					activeCategory = tab.getAttribute('data-category') || 'all';
+					filterCards();
 				});
 			});
+
+			document.getElementById('blog-search')?.addEventListener('input', filterCards);
 		</script>
 	</body>
 </html>

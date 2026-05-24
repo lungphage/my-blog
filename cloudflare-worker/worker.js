@@ -139,11 +139,15 @@ function buildStats(logs) {
 
 async function handleGetStats(request, env) {
   const password = request.headers.get("X-Admin-Password");
-  if (password !== ADMIN_PASSWORD) {
+  const isPublic = password === "public";
+  if (password !== ADMIN_PASSWORD && !isPublic) {
     return new Response(JSON.stringify({ error: "密码错误" }), { status: 401, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } });
   }
   const logs = await getAllLogs(env);
   const stats = buildStats(logs);
+  if (isPublic) {
+    return new Response(JSON.stringify({ ok: true, stats: { total: stats.total, uniqueIPs: stats.uniqueIPs, todayCount: stats.todayCount } }), { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } });
+  }
   return new Response(JSON.stringify({ ok: true, stats, logs: logs.slice(0, 200) }), { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } });
 }
 

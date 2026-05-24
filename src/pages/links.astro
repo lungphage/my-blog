@@ -1,0 +1,106 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE_TITLE } from '../consts';
+
+const linkGroups = [
+	{
+		title: '🔬 生物信息学',
+		links: [
+			{ name: 'funannotate', desc: '真菌基因组注释', url: 'https://funannotate.readthedocs.io/', icon: '🍄' },
+			{ name: 'NCBI', desc: '生物数据库', url: 'https://www.ncbi.nlm.nih.gov/', icon: '🧬' },
+			{ name: 'UniProt', desc: '蛋白质数据库', url: 'https://www.uniprot.org/', icon: '🔬' },
+			{ name: 'BUSCO', desc: '基因组质量评估', url: 'https://busco.ezlab.org/', icon: '📊' },
+			{ name: 'JGI IMG/M', desc: '微生物基因组数据库', url: 'https://img.jgi.doe.gov/', icon: '🦠' },
+		],
+	},
+	{
+		title: '🛠️ 常用工具',
+		links: [
+			{ name: 'GitHub', desc: '代码托管', url: 'https://github.com/', icon: '💻' },
+			{ name: 'ChatGPT', desc: 'AI 助手', url: 'https://chat.openai.com/', icon: '🤖' },
+			{ name: 'Gemini', desc: 'AI 助手', url: 'https://gemini.google.com/', icon: '✨' },
+			{ name: 'Claude', desc: 'AI 助手', url: 'https://claude.ai/', icon: '🧠' },
+			{ name: 'Notion', desc: '笔记与协作', url: 'https://www.notion.so/', icon: '📝' },
+		],
+	},
+	{
+		title: '📖 学习资源',
+		links: [
+			{ name: 'Astro Docs', desc: '本站框架文档', url: 'https://docs.astro.build/', icon: '🚀' },
+			{ name: 'MDN Web Docs', desc: '前端开发参考', url: 'https://developer.mozilla.org/', icon: '📚' },
+			{ name: 'Stack Overflow', desc: '编程问答', url: 'https://stackoverflow.com/', icon: '💡' },
+			{ name: 'B站', desc: '视频学习', url: 'https://space.bilibili.com/5950502', icon: '📺' },
+		],
+	},
+];
+---
+
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<BaseHead title={`友链 - ${SITE_TITLE}`} description="常用工具与参考网站" />
+		<style>
+			main { width: var(--main-width); }
+			.page-title { margin-bottom: 0.3em; }
+			.page-subtitle { color: rgb(var(--gray)); margin-bottom: 2em; font-size: 1.05em; }
+			.link-group { margin-bottom: 2.5em; }
+			.group-title { font-size: 1.2em; margin-bottom: 0.8em; color: rgb(var(--black)); }
+			.link-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+			.link-card {
+				background: var(--card-bg);
+				border: 1px solid var(--card-border);
+				border-radius: 12px;
+				padding: 16px 18px;
+				text-decoration: none !important;
+				color: inherit;
+				display: flex;
+				align-items: center;
+				gap: 14px;
+				transition: transform 0.2s, box-shadow 0.2s, background 0.3s, border-color 0.3s;
+			}
+			.link-card:hover {
+				transform: translateY(-3px);
+				box-shadow: var(--box-shadow);
+			}
+			.link-icon {
+				font-size: 1.6em;
+				width: 42px;
+				height: 42px;
+				line-height: 42px;
+				text-align: center;
+				background: var(--accent-light);
+				border-radius: 10px;
+				flex-shrink: 0;
+			}
+			.link-info { flex: 1; min-width: 0; }
+			.link-name { font-weight: 700; color: rgb(var(--black)); display: block; }
+			.link-desc { font-size: 0.85em; color: rgb(var(--gray)); }
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<h1 class="page-title">🔗 友链</h1>
+			<p class="page-subtitle">常用工具与参考网站</p>
+			{linkGroups.map((group) => (
+				<div class="link-group">
+					<h2 class="group-title">{group.title}</h2>
+					<div class="link-grid">
+						{group.links.map((link) => (
+							<a href={link.url} target="_blank" class="link-card">
+								<div class="link-icon">{link.icon}</div>
+								<div class="link-info">
+									<span class="link-name">{link.name}</span>
+									<span class="link-desc">{link.desc}</span>
+								</div>
+							</a>
+						))}
+					</div>
+				</div>
+			))}
+		</main>
+		<Footer />
+	</body>
+</html>

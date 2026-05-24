@@ -1,10 +1,25 @@
 ---
+import BackToTop from './BackToTop.astro';
 const today = new Date();
 ---
 
 <footer>
+	<div class="footer-stats" id="footer-stats"></div>
 	&copy; {today.getFullYear()} 流光镜影. All rights reserved.
 </footer>
+<BackToTop />
+
+<script>
+	fetch("https://blog-visitor-tracker.liuzifeng1129662448.workers.dev/stats", {
+		headers: { "X-Admin-Password": "public" }
+	}).then(r => r.json()).then(data => {
+		if (data.stats) {
+			document.getElementById('footer-stats')!.innerHTML =
+				`<span>📊 总访问 <strong>${data.stats.total}</strong> · 独立访客 <strong>${data.stats.uniqueIPs}</strong></span>`;
+		}
+	}).catch(() => {});
+</script>
+
 <style>
 	footer {
 		padding: 2em 1em 4em 1em;
@@ -13,5 +28,12 @@ const today = new Date();
 		text-align: center;
 		transition: background 0.3s, color 0.3s;
 		border-top: 1px solid rgb(var(--gray-light));
+	}
+	.footer-stats {
+		margin-bottom: 0.8em;
+		font-size: 0.88em;
+	}
+	.footer-stats strong {
+		color: var(--accent);
 	}
 </style>

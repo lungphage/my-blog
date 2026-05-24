@@ -333,3 +333,48 @@ hr { border: none; border-top: 1px solid rgb(var(--gray-light)); }
 	border-color: var(--accent);
 }
 .mode-btn.active svg { stroke: #fff; }
+
+/* Back to top button */
+.back-to-top {
+	position: fixed;
+	bottom: 2em;
+	right: 2em;
+	width: 44px;
+	height: 44px;
+	border-radius: 50%;
+	background: var(--accent);
+	color: #fff;
+	border: none;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.3em;
+	opacity: 0;
+	visibility: hidden;
+	transform: translateY(10px);
+	transition: all 0.3s;
+	box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+	z-index: 90;
+}
+.back-to-top.visible {
+	opacity: 1;
+	visibility: visible;
+	transform: translateY(0);
+}
+.back-to-top:hover {
+	transform: translateY(-3px);
+	box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+/* Reading progress bar */
+.reading-progress {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 0%;
+	height: 3px;
+	background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+	z-index: 999;
+	transition: width 0.1s;
+}

@@ -21,6 +21,7 @@ const articles = [
 		url: '/fungal_mag_funannotate.html',
 		icon: '🍄',
 		category: 'software',
+		tags: ['funannotate', '真菌', 'MAG', '宏基因组', 'Singularity'],
 	},
 	{
 		title: '批判性问题 | HUNT肠道菌群GWAS研究',
@@ -29,6 +30,7 @@ const articles = [
 		url: '/HUNT_microbiota_critical_questions_claude.html',
 		icon: '❓',
 		category: 'paper',
+		tags: ['HUNT', 'GWAS', '肠道菌群', '文献批判'],
 	},
 	{
 		title: 'HUNT 研究：宿主遗传因素与肠道微生物组成 — 论文详细总结',
@@ -37,6 +39,7 @@ const articles = [
 		url: '/HUNT_microbiota_summary_deepseek.html',
 		icon: '📖',
 		category: 'paper',
+		tags: ['HUNT', '肠道菌群', '遗传学', '论文总结'],
 	},
 	{
 		title: 'Funannotate Singularity 完整操作记录 — Fungus_sp_MAG1',
@@ -45,6 +48,7 @@ const articles = [
 		url: '/funannotate_final_guide.html',
 		icon: '📋',
 		category: 'software',
+		tags: ['funannotate', '真菌', '操作记录', 'Singularity'],
 	},
 	{
 		title: '上传过程记录 — funannotate_final_guide.html',
@@ -53,6 +57,7 @@ const articles = [
 		url: '/upload_process.html',
 		icon: '📝',
 		category: 'thoughts',
+		tags: ['博客', '教程', 'Astro'],
 	},
 	{
 		title: '生活点滴',
@@ -61,6 +66,7 @@ const articles = [
 		url: '/blog/life/',
 		icon: '🌿',
 		category: 'life',
+		tags: ['生活', '日常', '分享'],
 	},
 	{
 		title: '博客评论',
@@ -69,6 +75,7 @@ const articles = [
 		url: '/blog/comments/',
 		icon: '💬',
 		category: 'review',
+		tags: ['评论', '反馈', '建议'],
 	},
 ];
 ---
@@ -212,6 +219,29 @@ const articles = [
 				-webkit-line-clamp: 2;
 				-webkit-box-orient: vertical;
 			}
+			.card-tags {
+				display: flex;
+				gap: 6px;
+				flex-wrap: wrap;
+				margin-top: 8px;
+			}
+			.card-tag {
+				font-size: 0.75em;
+				color: var(--accent);
+				background: var(--accent-light);
+				padding: 2px 8px;
+				border-radius: 6px;
+				cursor: pointer;
+				transition: background 0.2s;
+			}
+			.card-tag:hover {
+				background: var(--accent);
+				color: #fff;
+			}
+			.card-tag.active-tag {
+				background: var(--accent);
+				color: #fff;
+			}
 			[data-theme="dark"] .card-icon {
 				background: linear-gradient(135deg, #2d1b69, #3a2a6e);
 			}
@@ -243,7 +273,7 @@ const articles = [
 			</div>
 			<ul class="blog-list">
 				{articles.map((article) => (
-					<li class="blog-card" data-category={article.category}>
+					<li class="blog-card" data-category={article.category} data-tags={article.tags?.join(',')}>
 						<a href={article.url}>
 							<div class="card-icon">{article.icon}</div>
 							<div class="card-content">
@@ -255,6 +285,13 @@ const articles = [
 									</span>
 								</div>
 								<p class="card-desc">{article.desc}</p>
+								{article.tags && (
+									<div class="card-tags">
+										{article.tags.map((tag) => (
+											<span class="card-tag">#{tag}</span>
+										))}
+									</div>
+								)}
 							</div>
 						</a>
 					</li>
@@ -264,15 +301,18 @@ const articles = [
 		<Footer />
 		<script>
 			let activeCategory = 'all';
+			let activeTag = '';
 
 			function filterCards() {
 				const query = (document.getElementById('blog-search') as HTMLInputElement).value.toLowerCase();
 				document.querySelectorAll('.blog-card').forEach((card) => {
 					const cat = card.getAttribute('data-category');
+					const tags = card.getAttribute('data-tags') || '';
 					const text = (card.textContent || '').toLowerCase();
 					const catMatch = activeCategory === 'all' || cat === activeCategory;
+					const tagMatch = !activeTag || tags.split(',').includes(activeTag);
 					const searchMatch = !query || text.includes(query);
-					(card as HTMLElement).style.display = catMatch && searchMatch ? '' : 'none';
+					(card as HTMLElement).style.display = catMatch && tagMatch && searchMatch ? '' : 'none';
 				});
 			}
 
@@ -281,11 +321,30 @@ const articles = [
 					document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
 					tab.classList.add('active');
 					activeCategory = tab.getAttribute('data-category') || 'all';
+					activeTag = '';
 					filterCards();
 				});
 			});
 
 			document.getElementById('blog-search')?.addEventListener('input', filterCards);
+
+			// Tag click filtering
+			document.addEventListener('click', (e) => {
+				const tag = (e.target as HTMLElement).closest('.card-tag');
+				if (!tag) return;
+				e.preventDefault();
+				e.stopPropagation();
+				const tagText = tag.textContent?.replace('#', '').trim() || '';
+				if (activeTag === tagText) {
+					activeTag = '';
+				} else {
+					activeTag = tagText;
+				}
+				document.querySelectorAll('.card-tag').forEach(t => {
+					t.classList.toggle('active-tag', t.textContent?.replace('#', '').trim() === activeTag && activeTag);
+				});
+				filterCards();
+			});
 		</script>
 	</body>
 </html>

@@ -6,6 +6,7 @@ import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
 import ReadingProgress from '../components/ReadingProgress.astro';
+import TOC from '../components/TOC.astro';
 
 type Props = CollectionEntry<'blog'>['data'];
 
@@ -69,6 +70,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 		<main>
 			<article>
 				<div class="prose">
+					<TOC />
 					<div class="title">
 						<div class="date">
 							<FormattedDate date={pubDate} />

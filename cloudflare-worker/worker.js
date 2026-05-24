@@ -164,6 +164,31 @@ async function handleGetIPHistory(request, env) {
   return new Response(JSON.stringify({ ok: true, ip, history }), { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } });
 }
 
+async function handleSubscribe(request, env) {
+  const { email } = await request.json();
+  if (!email || !email.includes("@")) {
+    return new Response(JSON.stringify({ error: "无效邮箱" }), { status: 400, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } });
+  }
+  let subscribers = [];
+  try { const raw = await env.VISITOR_KV.get("__subscribers__"); if (raw) subscribers = JSON.parse(raw); } catch {}
+  if (subscribers.find(s => s.email === email)) {
+    return new Response(JSON.stringify({ ok: true, message: "已订阅" }), { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } });
+  }
+  subscribers.push({ email, time: new Date().toISOString() });
+  await env.VISITOR_KV.put("__subscribers__", JSON.stringify(subscribers));
+  return new Response(JSON.stringify({ ok: true }), { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } });
+}
+
+async function handleGetSubscribers(request, env) {
+  const password = request.headers.get("X-Admin-Password");
+  if (password !== ADMIN_PASSWORD) {
+    return new Response(JSON.stringify({ error: "密码错误" }), { status: 401, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } });
+  }
+  let subscribers = [];
+  try { const raw = await env.VISITOR_KV.get("__subscribers__"); if (raw) subscribers = JSON.parse(raw); } catch {}
+  return new Response(JSON.stringify({ ok: true, subscribers }), { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } });
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -171,6 +196,8 @@ export default {
     if (request.method === "POST" && url.pathname === "/log") return handleLog(request, env);
     if (request.method === "GET" && url.pathname === "/stats") return handleGetStats(request, env);
     if (request.method === "GET" && url.pathname === "/ip") return handleGetIPHistory(request, env);
+    if (request.method === "POST" && url.pathname === "/subscribe") return handleSubscribe(request, env);
+    if (request.method === "GET" && url.pathname === "/subscribers") return handleGetSubscribers(request, env);
     return new Response(JSON.stringify({ error: "Not Found" }), { status: 404, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } });
   },
 };

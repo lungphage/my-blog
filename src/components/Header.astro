@@ -6,7 +6,10 @@ import HeaderLink from './HeaderLink.astro';
 <header>
 	<nav>
 		<h2><a href="/">{SITE_TITLE}</a></h2>
-		<div class="internal-links">
+		<button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="菜单">
+			<span></span><span></span><span></span>
+		</button>
+		<div class="internal-links" id="nav-links">
 			<HeaderLink href="/">首页</HeaderLink>
 			<HeaderLink href="/blog">博客</HeaderLink>
 			<HeaderLink href="/archive">归档</HeaderLink>
@@ -31,7 +34,6 @@ import HeaderLink from './HeaderLink.astro';
 		<h3>⚙ 设置</h3>
 		<button class="settings-close" id="settings-close">&times;</button>
 	</div>
-
 	<div class="settings-section">
 		<div class="settings-label">主题模式</div>
 		<div class="mode-toggle">
@@ -43,7 +45,6 @@ import HeaderLink from './HeaderLink.astro';
 			</button>
 		</div>
 	</div>
-
 	<div class="settings-section">
 		<div class="settings-label">配色方案</div>
 		<div class="theme-swatches">
@@ -55,7 +56,6 @@ import HeaderLink from './HeaderLink.astro';
 			<div class="swatch swatch-teal" data-accent="teal" title="青色"></div>
 		</div>
 	</div>
-
 	<div class="settings-section">
 		<div class="settings-label">字体大小</div>
 		<div class="option-group">
@@ -64,7 +64,6 @@ import HeaderLink from './HeaderLink.astro';
 			<button class="option-btn" data-font="large">大</button>
 		</div>
 	</div>
-
 	<div class="settings-section">
 		<div class="settings-label">页面宽度</div>
 		<div class="option-group">
@@ -78,8 +77,10 @@ import HeaderLink from './HeaderLink.astro';
 	const root = document.documentElement;
 	const overlay = document.getElementById('settings-overlay')!;
 	const panel = document.getElementById('settings-panel')!;
-	const btn = document.getElementById('settings-btn')!;
+	const settingsBtn = document.getElementById('settings-btn')!;
 	const closeBtn = document.getElementById('settings-close')!;
+	const mobileBtn = document.getElementById('mobile-menu-btn')!;
+	const navLinks = document.getElementById('nav-links')!;
 
 	function get(k: string, d: string) { return localStorage.getItem(k) || d; }
 	function set(k: string, v: string) { localStorage.setItem(k, v); }
@@ -89,46 +90,40 @@ import HeaderLink from './HeaderLink.astro';
 		const accent = get('accent', 'purple');
 		const font = get('font', 'medium');
 		const width = get('width', 'narrow');
-
 		root.setAttribute('data-theme', theme);
 		root.setAttribute('data-accent', accent);
 		root.setAttribute('data-font', font);
 		root.setAttribute('data-width', width);
-
-		document.querySelectorAll('.mode-btn').forEach(b => {
-			b.classList.toggle('active', b.getAttribute('data-mode') === theme);
-		});
-		document.querySelectorAll('.swatch').forEach(s => {
-			s.classList.toggle('active', s.getAttribute('data-accent') === accent);
-		});
-		document.querySelectorAll('[data-font]').forEach(b => {
-			if (b.classList.contains('option-btn')) b.classList.toggle('active', b.getAttribute('data-font') === font);
-		});
-		document.querySelectorAll('[data-width]').forEach(b => {
-			if (b.classList.contains('option-btn')) b.classList.toggle('active', b.getAttribute('data-width') === width);
-		});
+		document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-mode') === theme));
+		document.querySelectorAll('.swatch').forEach(s => s.classList.toggle('active', s.getAttribute('data-accent') === accent));
+		document.querySelectorAll('[data-font]').forEach(b => { if (b.classList.contains('option-btn')) b.classList.toggle('active', b.getAttribute('data-font') === font); });
+		document.querySelectorAll('[data-width]').forEach(b => { if (b.classList.contains('option-btn')) b.classList.toggle('active', b.getAttribute('data-width') === width); });
 	}
 
 	function openPanel() { overlay.classList.add('open'); panel.classList.add('open'); }
 	function closePanel() { overlay.classList.remove('open'); panel.classList.remove('open'); }
 
-	btn.addEventListener('click', openPanel);
+	settingsBtn.addEventListener('click', openPanel);
 	closeBtn.addEventListener('click', closePanel);
 	overlay.addEventListener('click', closePanel);
 
-	document.querySelectorAll('.mode-btn').forEach(b => {
-		b.addEventListener('click', () => { set('theme', b.getAttribute('data-mode')!); applySettings(); });
-	});
-	document.querySelectorAll('.swatch').forEach(s => {
-		s.addEventListener('click', () => { set('accent', s.getAttribute('data-accent')!); applySettings(); });
-	});
-	document.querySelectorAll('.option-btn[data-font]').forEach(b => {
-		b.addEventListener('click', () => { set('font', b.getAttribute('data-font')!); applySettings(); });
-	});
-	document.querySelectorAll('.option-btn[data-width]').forEach(b => {
-		b.addEventListener('click', () => { set('width', b.getAttribute('data-width')!); applySettings(); });
+	mobileBtn.addEventListener('click', () => {
+		mobileBtn.classList.toggle('open');
+		navLinks.classList.toggle('open');
 	});
 
+	// Close mobile menu when clicking a link
+	navLinks.querySelectorAll('a').forEach(a => {
+		a.addEventListener('click', () => {
+			mobileBtn.classList.remove('open');
+			navLinks.classList.remove('open');
+		});
+	});
+
+	document.querySelectorAll('.mode-btn').forEach(b => b.addEventListener('click', () => { set('theme', b.getAttribute('data-mode')!); applySettings(); }));
+	document.querySelectorAll('.swatch').forEach(s => s.addEventListener('click', () => { set('accent', s.getAttribute('data-accent')!); applySettings(); }));
+	document.querySelectorAll('.option-btn[data-font]').forEach(b => b.addEventListener('click', () => { set('font', b.getAttribute('data-font')!); applySettings(); }));
+	document.querySelectorAll('.option-btn[data-width]').forEach(b => b.addEventListener('click', () => { set('width', b.getAttribute('data-width')!); applySettings(); }));
 	applySettings();
 </script>
 
@@ -168,7 +163,52 @@ import HeaderLink from './HeaderLink.astro';
 		color: rgb(var(--gray-dark));
 	}
 	.social-link:hover { color: var(--accent); }
+
+	/* Mobile hamburger */
+	.mobile-menu-btn {
+		display: none;
+		background: none;
+		border: none;
+		cursor: pointer;
+		padding: 0.5em;
+		flex-direction: column;
+		gap: 5px;
+	}
+	.mobile-menu-btn span {
+		display: block;
+		width: 22px;
+		height: 2px;
+		background: rgb(var(--gray-dark));
+		border-radius: 2px;
+		transition: all 0.3s;
+	}
+	.mobile-menu-btn.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+	.mobile-menu-btn.open span:nth-child(2) { opacity: 0; }
+	.mobile-menu-btn.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
 	@media (max-width: 720px) {
 		.social-link { display: none; }
+		.mobile-menu-btn { display: flex; }
+		.internal-links {
+			display: none;
+			position: absolute;
+			top: 100%;
+			left: 0;
+			right: 0;
+			background: var(--header-bg);
+			border-top: 1px solid var(--card-border);
+			box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+			flex-direction: column;
+			padding: 0.5em 0;
+			z-index: 50;
+		}
+		.internal-links.open { display: flex; }
+		.internal-links a {
+			padding: 0.8em 1.5em;
+			border-bottom: none;
+			border-left: 4px solid transparent;
+		}
+		.internal-links a.active { border-left-color: var(--accent); border-bottom: none; }
 	}
+	header { position: relative; }
 </style>

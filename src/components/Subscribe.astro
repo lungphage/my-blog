@@ -1,0 +1,106 @@
+---
+---
+
+<div class="subscribe-box" id="subscribe-box">
+	<h3>📧 订阅更新</h3>
+	<p>有新文章时收到通知</p>
+	<form id="subscribe-form">
+		<input type="email" id="subscribe-email" placeholder="你的邮箱地址" required />
+		<button type="submit">订阅</button>
+	</form>
+	<div class="subscribe-msg" id="subscribe-msg"></div>
+</div>
+
+<script>
+	const form = document.getElementById('subscribe-form')!;
+	const msg = document.getElementById('subscribe-msg')!;
+	const WORKER_URL = "https://blog-visitor-tracker.liuzifeng1129662448.workers.dev";
+
+	form.addEventListener('submit', async (e) => {
+		e.preventDefault();
+		const email = (document.getElementById('subscribe-email') as HTMLInputElement).value;
+		try {
+			const res = await fetch(WORKER_URL + "/subscribe", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email }),
+			});
+			const data = await res.json();
+			if (data.ok) {
+				msg.textContent = "✅ 订阅成功！感谢关注。";
+				msg.className = "subscribe-msg success";
+				(document.getElementById('subscribe-email') as HTMLInputElement).value = "";
+			} else {
+				msg.textContent = "❌ " + (data.error || "订阅失败");
+				msg.className = "subscribe-msg error";
+			}
+		} catch {
+			msg.textContent = "❌ 网络错误，请稍后重试";
+			msg.className = "subscribe-msg error";
+		}
+	});
+</script>
+
+<style>
+	.subscribe-box {
+		background: var(--card-bg);
+		border: 1px solid var(--card-border);
+		border-radius: 12px;
+		padding: 24px;
+		text-align: center;
+		transition: background 0.3s, border-color 0.3s;
+	}
+	.subscribe-box h3 {
+		margin: 0 0 6px 0;
+		font-size: 1.1em;
+		color: rgb(var(--black));
+	}
+	.subscribe-box p {
+		margin: 0 0 16px 0;
+		color: rgb(var(--gray));
+		font-size: 0.9em;
+	}
+	#subscribe-form {
+		display: flex;
+		gap: 8px;
+		max-width: 400px;
+		margin: 0 auto;
+	}
+	#subscribe-email {
+		flex: 1;
+		padding: 10px 14px;
+		border-radius: 8px;
+		border: 1px solid var(--card-border);
+		background: var(--body-bg);
+		color: rgb(var(--gray-dark));
+		font-size: 0.92em;
+		transition: border-color 0.2s;
+	}
+	#subscribe-email:focus {
+		outline: none;
+		border-color: var(--accent);
+	}
+	#subscribe-form button {
+		padding: 10px 20px;
+		border-radius: 8px;
+		border: none;
+		background: var(--accent);
+		color: #fff;
+		font-weight: 600;
+		cursor: pointer;
+		transition: background 0.2s;
+	}
+	#subscribe-form button:hover {
+		background: var(--accent-dark);
+	}
+	.subscribe-msg {
+		margin-top: 10px;
+		font-size: 0.88em;
+		min-height: 1.5em;
+	}
+	.subscribe-msg.success { color: #38a169; }
+	.subscribe-msg.error { color: #e53e3e; }
+	@media (max-width: 720px) {
+		#subscribe-form { flex-direction: column; }
+	}
+</style>

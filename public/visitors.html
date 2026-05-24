@@ -89,6 +89,7 @@
       <button class="tab-btn" data-tab="devices">📱 设备分布</button>
       <button class="tab-btn" data-tab="sources">🔗 来源分析</button>
       <button class="tab-btn" data-tab="repeat">🔁 回头访客</button>
+      <button class="tab-btn" data-tab="subscribers">📧 订阅者</button>
       <button class="tab-btn" data-tab="all">📋 全部记录</button>
     </div>
 
@@ -135,6 +136,21 @@
         <thead><tr><th>IP</th><th>国家</th><th>访问次数</th><th>设备</th><th>浏览器</th><th>首次访问</th><th>最近访问</th></tr></thead>
         <tbody id="repeat-body"></tbody>
       </table>
+    </div>
+
+    <!-- 订阅者 -->
+    <div class="panel" id="panel-subscribers">
+      <div class="chart-box" style="max-width:600px;">
+        <h3 style="color:#a78bfa;margin-bottom:12px;">📧 订阅者列表</h3>
+        <div style="margin-bottom:12px;display:flex;gap:10px;">
+          <button onclick="loadSubscribers()" style="padding:8px 16px;border-radius:8px;border:1px solid #3a3a5c;background:#252540;color:#e0e0f0;cursor:pointer;font-size:0.9em;">🔄 刷新</button>
+          <button onclick="exportSubscribers()" style="padding:8px 16px;border-radius:8px;border:1px solid #3a3a5c;background:#252540;color:#e0e0f0;cursor:pointer;font-size:0.9em;">📥 导出 CSV</button>
+        </div>
+        <table>
+          <thead><tr><th>邮箱</th><th>订阅时间</th></tr></thead>
+          <tbody id="subscribers-body"><tr><td colspan="2" class="empty">点击刷新加载</td></tr></tbody>
+        </table>
+      </div>
     </div>
 
     <!-- 全部记录 -->
@@ -342,6 +358,35 @@
       allLogs.forEach(l => rows.push([l.time,l.ip,l.country,l.device,l.os,l.browser,l.page,l.referrer]));
       const blob = new Blob(["\ufeff" + rows.map(r => r.join(",")).join("\n")], { type: "text/csv;charset=utf-8" });
       const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "visitor-logs.csv"; a.click();
+    }
+
+    let allSubscribers = [];
+    function loadSubscribers() {
+      const pw = sessionStorage.getItem("admin_pw");
+      if (!pw) return;
+      fetch(WORKER_URL + "/subscribers", { headers: { "X-Admin-Password": pw } })
+        .then(r => r.json())
+        .then(data => {
+          if (data.ok) {
+            allSubscribers = data.subscribers || [];
+            const body = document.getElementById("subscribers-body");
+            if (allSubscribers.length === 0) {
+              body.innerHTML = '<tr><td colspan="2" class="empty">暂无订阅者</td></tr>';
+              return;
+            }
+            body.innerHTML = allSubscribers.map(s =>
+              `<tr><td style="color:#63b3ed;font-family:monospace">${s.email}</td><td class="time-cell">${new Date(s.time).toLocaleString('zh-CN')}</td></tr>`
+            ).join('');
+          }
+        });
+    }
+
+    function exportSubscribers() {
+      if (allSubscribers.length === 0) { alert('暂无订阅者数据'); return; }
+      const rows = [["邮箱","订阅时间"]];
+      allSubscribers.forEach(s => rows.push([s.email, s.time]));
+      const blob = new Blob(["\ufeff" + rows.map(r => r.join(",")).join("\n")], { type: "text/csv;charset=utf-8" });
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "subscribers.csv"; a.click();
     }
 
     if (sessionStorage.getItem("admin_pw")) doLogin();

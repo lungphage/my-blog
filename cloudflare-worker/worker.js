@@ -1,7 +1,9 @@
 // Cloudflare Worker — 访客记录 API（增强版）
-// 功能：记录访客 + 统计分析 + 回头访客追踪
+// 功能：记录访客 + 统计分析 + 回头访客追踪 + 邮件订阅 + 新文章通知
 
 const ADMIN_PASSWORD = "zzqliu1995"; // 管理密码
+const RESEND_API_KEY = ""; // 在 Cloudflare Worker 环境变量中设置 RESEND_API_KEY
+const SENDER_EMAIL = "noreply@your-domain.com"; // Resend 验证过的发件邮箱
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
@@ -189,6 +191,89 @@ async function handleGetSubscribers(request, env) {
   return new Response(JSON.stringify({ ok: true, subscribers }), { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } });
 }
 
+async function handleNotify(request, env) {
+  const password = request.headers.get("X-Admin-Password");
+  if (password !== ADMIN_PASSWORD) {
+    return new Response(JSON.stringify({ error: "密码错误" }), { status: 401, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } });
+  }
+
+  const { title, url: articleUrl, description } = await request.json();
+  if (!title || !articleUrl) {
+    return new Response(JSON.stringify({ error: "缺少 title 或 url" }), { status: 400, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } });
+  }
+
+  const apiKey = env.RESEND_API_KEY || RESEND_API_KEY;
+  const sender = env.SENDER_EMAIL || SENDER_EMAIL;
+
+  if (!apiKey) {
+    return new Response(JSON.stringify({ error: "未配置 RESEND_API_KEY，请在 Worker 环境变量中设置" }), { status: 500, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } });
+  }
+
+  let subscribers = [];
+  try { const raw = await env.VISITOR_KV.get("__subscribers__"); if (raw) subscribers = JSON.parse(raw); } catch {}
+
+  if (subscribers.length === 0) {
+    return new Response(JSON.stringify({ ok: true, message: "暂无订阅者", sent: 0 }), { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } });
+  }
+
+  const results = [];
+  for (const sub of subscribers) {
+    try {
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: sender,
+          to: sub.email,
+          subject: `流光镜影 · 新文章：${title}`,
+          html: `
+            <div style="font-family:'Segoe UI','Microsoft YaHei',sans-serif;max-width:600px;margin:0 auto;padding:24px;">
+              <h2 style="color:#805ad5;border-bottom:2px solid #805ad5;padding-bottom:8px;">流光镜影 · 新文章通知</h2>
+              <h3 style="color:#2d3748;">${title}</h3>
+              ${description ? `<p style="color:#718096;">${description}</p>` : ''}
+              <a href="${articleUrl}" style="display:inline-block;padding:10px 24px;background:#805ad5;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;margin-top:12px;">阅读全文 →</a>
+              <hr style="border:none;border-top:1px solid #e9d8fd;margin:24px 0;">
+              <p style="color:#a0aec0;font-size:0.82em;">你收到此邮件是因为订阅了流光镜影博客更新。<a href="https://my-blog.liuzifeng1129662448.workers.dev/unsubscribe?email=${encodeURIComponent(sub.email)}" style="color:#805ad5;">取消订阅</a></p>
+            </div>
+          `,
+        }),
+      });
+      const data = await res.json();
+      results.push({ email: sub.email, ok: res.ok, id: data.id || data.message });
+    } catch (e) {
+      results.push({ email: sub.email, ok: false, error: e.message });
+    }
+  }
+
+  const sent = results.filter(r => r.ok).length;
+  return new Response(JSON.stringify({ ok: true, sent, total: subscribers.length, results }), { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } });
+}
+
+async function handleUnsubscribe(request, env) {
+  const url = new URL(request.url);
+  const email = url.searchParams.get("email");
+  if (!email) {
+    return new Response("Missing email", { status: 400 });
+  }
+  let subscribers = [];
+  try { const raw = await env.VISITOR_KV.get("__subscribers__"); if (raw) subscribers = JSON.parse(raw); } catch {}
+  subscribers = subscribers.filter(s => s.email !== email);
+  await env.VISITOR_KV.put("__subscribers__", JSON.stringify(subscribers));
+  return new Response(`
+    <!DOCTYPE html>
+    <html lang="zh-CN">
+    <head><meta charset="UTF-8"><title>取消订阅</title>
+    <style>body{font-family:"Segoe UI","Microsoft YaHei",sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#f7f5ff;color:#2d3748;margin:0;}
+    .box{text-align:center;background:#fff;padding:40px;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.1);}
+    h2{color:#805ad5;}a{color:#805ad5;text-decoration:none;}</style></head>
+    <body><div class="box"><h2>✅ 已取消订阅</h2><p>你已成功取消流光镜影博客的更新通知。</p><a href="https://my-blog.liuzifeng1129662448.workers.dev/">返回博客</a></div></body>
+    </html>
+  `, { headers: { "Content-Type": "text/html; charset=utf-8" } });
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -198,6 +283,8 @@ export default {
     if (request.method === "GET" && url.pathname === "/ip") return handleGetIPHistory(request, env);
     if (request.method === "POST" && url.pathname === "/subscribe") return handleSubscribe(request, env);
     if (request.method === "GET" && url.pathname === "/subscribers") return handleGetSubscribers(request, env);
+    if (request.method === "POST" && url.pathname === "/notify") return handleNotify(request, env);
+    if (request.method === "GET" && url.pathname === "/unsubscribe") return handleUnsubscribe(request, env);
     return new Response(JSON.stringify({ error: "Not Found" }), { status: 404, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } });
   },
 };

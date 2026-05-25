@@ -47,13 +47,19 @@ import Layout from '../layouts/BlogPost.astro';
 		width: 80px;
 		height: 80px;
 		line-height: 80px;
-		margin: 0 auto 0.6em;
-		background: linear-gradient(135deg, #805ad5, #553c9a);
-		border-radius: 16px;
+		margin: 0 auto 0.8em;
+		background: var(--gradient);
+		border-radius: 20px;
+		transition: transform var(--transition), box-shadow var(--transition);
+	}
+	.avatar:hover {
+		transform: scale(1.05);
+		box-shadow: 0 8px 30px rgba(108, 92, 231, 0.4);
 	}
 	.about-hero h2 {
-		margin: 0 0 0.2em;
-		font-size: 1.6em;
+		margin: 0 0 0.3em;
+		font-size: 1.8em;
+		font-weight: 700;
 	}
 	.bio {
 		color: rgb(var(--gray));
@@ -74,17 +80,31 @@ import Layout from '../layouts/BlogPost.astro';
 		justify-content: center;
 		gap: 10px;
 		padding: 28px 16px;
-		border-radius: 14px;
+		border-radius: var(--radius);
 		text-decoration: none !important;
-		background: linear-gradient(135deg, #805ad5 0%, #6b46c1 100%);
-		color: #fff;
-		transition: transform 0.25s, box-shadow 0.25s, background 0.3s;
+		background: var(--card-bg);
+		border: 1px solid var(--card-border);
+		color: rgb(var(--black));
+		transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition), background var(--transition);
+		position: relative;
+		overflow: hidden;
 	}
+	.link-block::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 2px;
+		background: var(--gradient);
+		opacity: 0;
+		transition: opacity var(--transition);
+	}
+	.link-block:hover::before { opacity: 1; }
 	.link-block:hover {
-		transform: translateY(-4px) scale(1.03);
-		box-shadow: 0 8px 24px rgba(128, 90, 213, 0.4);
-		background: linear-gradient(135deg, #6b46c1 0%, #553c9a 100%);
-		color: #fff;
+		transform: translateY(-4px);
+		box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+		border-color: rgba(255, 255, 255, 0.1);
 	}
 	.link-block:active {
 		transform: scale(0.97);

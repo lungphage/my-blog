@@ -4,8 +4,13 @@ const today = new Date();
 ---
 
 <footer>
-	<div class="footer-stats" id="footer-stats"></div>
-	&copy; {today.getFullYear()} 流光镜影. All rights reserved.
+	<div class="footer-inner">
+		<div class="footer-brand">
+			<div class="footer-logo">流光镜影</div>
+			<div class="footer-text">&copy; {today.getFullYear()} 流光镜影. All rights reserved.</div>
+		</div>
+		<div class="footer-stats" id="footer-stats"></div>
+	</div>
 </footer>
 <BackToTop />
 
@@ -15,25 +20,63 @@ const today = new Date();
 	}).then(r => r.json()).then(data => {
 		if (data.stats) {
 			document.getElementById('footer-stats')!.innerHTML =
-				`<span>📊 总访问 <strong>${data.stats.total}</strong> · 独立访客 <strong>${data.stats.uniqueIPs}</strong></span>`;
+				`<span>总访问 <strong>${data.stats.total}</strong> | 独立访客 <strong>${data.stats.uniqueIPs}</strong></span>`;
 		}
 	}).catch(() => {});
 </script>
 
 <style>
 	footer {
-		padding: 2em 1em 4em 1em;
-		background: var(--header-bg);
+		position: relative;
+		z-index: 1;
+		padding: 3em 1.5em 2em;
+		background: var(--body-bg-secondary);
 		color: rgb(var(--gray));
-		text-align: center;
-		transition: background 0.3s, color 0.3s;
-		border-top: 1px solid rgb(var(--gray-light));
+		border-top: 1px solid var(--card-border);
+		transition: background var(--transition), border-color var(--transition);
+	}
+	.footer-inner {
+		max-width: 1200px;
+		margin: 0 auto;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 1em;
+	}
+	.footer-brand {
+		display: flex;
+		flex-direction: column;
+		gap: 0.3em;
+	}
+	.footer-logo {
+		font-size: 1.2rem;
+		font-weight: 700;
+		background: var(--gradient);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		background-clip: text;
+	}
+	.footer-text {
+		font-size: 0.85em;
+		color: rgb(var(--gray));
 	}
 	.footer-stats {
-		margin-bottom: 0.8em;
 		font-size: 0.88em;
+		color: rgb(var(--gray));
 	}
 	.footer-stats strong {
 		color: var(--accent);
+		font-weight: 600;
+	}
+
+	@media (max-width: 720px) {
+		.footer-inner {
+			flex-direction: column;
+			text-align: center;
+		}
+		.footer-brand {
+			align-items: center;
+		}
 	}
 </style>

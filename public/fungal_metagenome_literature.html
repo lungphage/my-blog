@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>真菌宏基因组高分期刊分析类文献汇总</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #0d1117;
+      color: #c9d1d9;
+      padding: 32px 16px;
+    }
+    @keyframes headerGlow {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideRight {
+      from { opacity: 0; transform: translateX(-18px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes badgePop {
+      from { opacity: 0; transform: scale(0.85); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    header {
+      max-width: 960px;
+      margin: 0 auto 32px;
+      padding: 28px 32px;
+      background: linear-gradient(270deg, #1a3a5c, #1a3d3d, #0d2137, #163030);
+      background-size: 300% 300%;
+      animation: headerGlow 8s ease infinite, fadeDown 0.6s ease both;
+      border-radius: 12px;
+      color: #e6edf3;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      border: 1px solid #21262d;
+    }
+    header h1 { font-size: 1.75rem; margin-bottom: 6px; }
+    header p  { font-size: 0.9rem; opacity: 0.75; }
+    .meta-bar {
+      max-width: 960px;
+      margin: 0 auto 24px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .badge {
+      background: #161b22;
+      border: 1px solid #30363d;
+      color: #58a6ff;
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      opacity: 0;
+      animation: badgePop 0.4s ease both;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+    .badge:hover {
+      background: #1f2d3d;
+      border-color: #58a6ff;
+      color: #79b8ff;
+    }
+    .section-title {
+      max-width: 960px;
+      margin: 0 auto 16px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #58a6ff;
+      border-left: 4px solid #58a6ff;
+      padding-left: 10px;
+      opacity: 0;
+      transform: translateX(-18px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .section-title.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .grid {
+      max-width: 960px;
+      margin: 0 auto 36px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: #161b22;
+      border-radius: 10px;
+      padding: 20px 22px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+      border-top: 4px solid #4299e1;
+      border-left: 1px solid #21262d;
+      border-right: 1px solid #21262d;
+      border-bottom: 1px solid #21262d;
+      transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1),
+                  box-shadow 0.28s ease,
+                  border-color 0.28s ease;
+      opacity: 0;
+      transform: translateY(28px);
+    }
+    .card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .card:hover {
+      box-shadow: 0 8px 32px rgba(0,0,0,0.7);
+      transform: translateY(-4px);
+      border-color: #30363d;
+    }
+    .card.nature   { border-top-color: #f85149; }
+    .card.nature:hover  { box-shadow: 0 8px 32px rgba(248,81,73,0.25); }
+    .card.cell     { border-top-color: #a371f7; }
+    .card.cell:hover    { box-shadow: 0 8px 32px rgba(163,113,247,0.25); }
+    .card.microbiome { border-top-color: #3fb950; }
+    .card.microbiome:hover { box-shadow: 0 8px 32px rgba(63,185,80,0.25); }
+    .card.ecology  { border-top-color: #e3b341; }
+    .card.ecology:hover { box-shadow: 0 8px 32px rgba(227,179,65,0.25); }
+    .card.clinical { border-top-color: #f85149; }
+    .card.clinical:hover { box-shadow: 0 8px 32px rgba(248,81,73,0.25); }
+    .journal-tag {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+    .tag-nature   { background: #3d1a1a; color: #f85149; }
+    .tag-cell     { background: #2d1f45; color: #a371f7; }
+    .tag-microbiome { background: #1a3d2a; color: #3fb950; }
+    .tag-ecology  { background: #3d2e00; color: #e3b341; }
+    .tag-eid      { background: #1a2d3d; color: #58a6ff; }
+    .tag-frontiers { background: #3d1a1a; color: #f85149; }
+    .tag-lno      { background: #0d2d2d; color: #39d0d8; }
+    .tag-pmc      { background: #21262d; color: #8b949e; }
+    .card h3 {
+      font-size: 0.97rem;
+      font-weight: 700;
+      line-height: 1.5;
+      margin-bottom: 8px;
+      color: #e6edf3;
+    }
+    .card .authors {
+      font-size: 0.82rem;
+      color: #6e7681;
+      margin-bottom: 6px;
+    }
+    .card .year-if {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .pill {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+    .pill-year { background: #1a2d3d; color: #58a6ff; }
+    .pill-if   { background: #1a3d2a; color: #3fb950; }
+    .pill-type { background: #2d1f45; color: #a371f7; }
+    .card p.abstract {
+      font-size: 0.83rem;
+      line-height: 1.65;
+      color: #8b949e;
+      margin-bottom: 12px;
+    }
+    .card a.doi {
+      font-size: 0.8rem;
+      color: #58a6ff;
+      text-decoration: none;
+      word-break: break-all;
+      position: relative;
+      display: inline-block;
+    }
+    .card a.doi::after {
+      content: '';
+      position: absolute;
+      left: 0; bottom: -1px;
+      width: 0; height: 1px;
+      background: #58a6ff;
+      transition: width 0.3s ease;
+    }
+    .card a.doi:hover::after { width: 100%; }
+    footer { display: none; }
+  </style>
+</head>
+<body>
+<div style="background:#fff;padding:0.8em 1.5em;border-bottom:1px solid #e9d8fd;display:flex;align-items:center;gap:1em;position:sticky;top:0;z-index:100;">
+  <a href="/blog/" style="color:#553c9a;text-decoration:none;font-size:0.95em;">← 返回博客</a>
+  <span style="color:#718096;font-size:0.85em;">流光镜影</span>
+</div>
+
+<header>
+  <h1>真菌宏基因组 · 高分期刊分析类文献汇总</h1>
+  <p>Fungal Metagenomics · High-Impact Analytical Studies · 2023–2025 &nbsp;|&nbsp; 生成日期：2026-06-08</p>
+</header>
+
+<div class="meta-bar">
+  <span class="badge">✦ 共收录 11 篇</span>
+  <span class="badge">期刊：Nature Genetics / Cell / Emerging Infectious Diseases / Microbiome / Limnology &amp; Oceanography 等</span>
+  <span class="badge">类型：分析 / 关联 / 生态 / 临床</span>
+  <span class="badge">排除软件工具类</span>
+</div>
+
+<!-- ========== 人体肠道真菌组 ========== -->
+<div class="section-title">🧬 人体肠道真菌组（Gut Mycobiome）</div>
+<div class="grid">
+
+  <div class="card nature">
+    <span class="journal-tag tag-nature">Nature Genetics</span>
+    <h3>Metagenomics of the human gut mycobiome</h3>
+    <div class="authors">Liang et al.</div>
+    <div class="year-if">
+      <span class="pill pill-year">2024</span>
+      <span class="pill pill-if">IF ≈ 31.7</span>
+      <span class="pill pill-type">大规模分析</span>
+    </div>
+    <p class="abstract">
+      构建包含 760 个真菌基因组的培养人肠道真菌（CGF）目录，涵盖 206 种真菌（含 69 个新种），
+      分析逾 11,000 份中国及非中国人群粪便宏基因组。识别出与炎症性肠病（IBD）相关的真菌标志物，
+      并在小鼠模型中进行了实验验证，系统刻画了肠道真菌组的物种多样性及其与常见疾病的关联。
+    </p>
+    <a class="doi" href="https://www.nature.com/articles/s41588-024-01817-4" target="_blank">
+      https://www.nature.com/articles/s41588-024-01817-4
+    </a>
+  </div>
+
+  <div class="card cell">
+    <span class="journal-tag tag-cell">Cell</span>
+    <h3>A genomic compendium of cultivated human gut fungi characterizes the gut mycobiome and its relevance to common diseases</h3>
+    <div class="authors">Cui et al.</div>
+    <div class="year-if">
+      <span class="pill pill-year">2024</span>
+      <span class="pill pill-if">IF ≈ 64.5</span>
+      <span class="pill pill-type">基因组 + 关联分析</span>
+    </div>
+    <p class="abstract">
+      对健康人群粪便样本进行系统性培养与基因组测序，建立人肠道真菌基因组数据库，
+      并整合宏基因组学手段分析真菌丰度与常见疾病（代谢病、免疫病）的关联，
+      揭示真菌组对宿主健康的独立贡献。
+    </p>
+    <a class="doi" href="https://www.cell.com/cell/fulltext/S0092-8674(24)00469-0" target="_blank">
+      https://www.cell.com/cell/fulltext/S0092-8674(24)00469-0
+    </a>
+  </div>
+
+  <div class="card microbiome">
+    <span class="journal-tag tag-pmc">Gut Microbes / PMC</span>
+    <h3>Shotgun metagenomics reveals interkingdom association between intestinal bacteria and fungi involving competition for nutrients</h3>
+    <div class="authors">Liguori et al.</div>
+    <div class="year-if">
+      <span class="pill pill-year">2023</span>
+      <span class="pill pill-if">IF ≈ 12.2</span>
+      <span class="pill pill-type">跨界关联分析</span>
+    </div>
+    <p class="abstract">
+      利用鸟枪法宏基因组测序，解析人肠道细菌与真菌之间的跨界互作网络，
+      重点揭示营养竞争机制对真菌-细菌共生关系的塑造作用，
+      为肠道微生物组稳态研究提供新视角。
+    </p>
+    <a class="doi" href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10720197/" target="_blank">
+      https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10720197/
+    </a>
+  </div>
+
+  <div class="card microbiome">
+    <span class="journal-tag tag-microbiome">Frontiers in Microbiology</span>
+    <h3>Gut mycobiome maturation and its determinants during early childhood: a comparison of ITS2 amplicon and shotgun metagenomic sequencing approaches</h3>
+    <div class="authors">Rao et al.</div>
+    <div class="year-if">
+      <span class="pill pill-year">2025</span>
+      <span class="pill pill-if">IF ≈ 5.2</span>
+      <span class="pill pill-type">发育队列分析</span>
+    </div>
+    <p class="abstract">
+      通过出生队列研究追踪婴幼儿出生后前 2 年肠道真菌组的动态变化，
+      比较 ITS2 扩增子测序与全基因组宏基因组测序两种方法的异同，
+      识别抗生素使用、母乳喂养、分娩方式等对真菌组成熟的关键决定因素。
+    </p>
+    <a class="doi" href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12133761/" target="_blank">
+      https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12133761/
+    </a>
+  </div>
+
+  <div class="card microbiome">
+    <span class="journal-tag tag-pmc">Microbiome / PMC</span>
+    <h3>Altered gut mycobiome in patients with end-stage renal disease and its correlations with serum and fecal metabolomes</h3>
+    <div class="authors">Gong et al.</div>
+    <div class="year-if">
+      <span class="pill pill-year">2024</span>
+      <span class="pill pill-if">IF ≈ 15.5</span>
+      <span class="pill pill-type">疾病关联 + 代谢组</span>
+    </div>
+    <p class="abstract">
+      对终末期肾病（ESRD）患者与健康对照进行粪便宏基因组测序，
+      解析肠道真菌组结构改变，并整合血清及粪便代谢组学数据，
+      揭示真菌失调与尿毒症代谢紊乱之间的多组学关联网络。
+    </p>
+    <a class="doi" href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10894479/" target="_blank">
+      https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10894479/
+    </a>
+  </div>
+
+  <div class="card microbiome">
+    <span class="journal-tag tag-pmc">Frontiers in Immunology / PMC</span>
+    <h3>Metagenomics reveals unique gut mycobiome biomarkers in psoriasis</h3>
+    <div class="authors">Zhang et al.</div>
+    <div class="year-if">
+      <span class="pill pill-year">2024</span>
+      <span class="pill pill-if">IF ≈ 7.3</span>
+      <span class="pill pill-type">生物标志物分析</span>
+    </div>
+    <p class="abstract">
+      通过鸟枪法宏基因组测序系统比较银屑病患者与健康人群的肠道真菌组差异，
+      鉴定出马拉色菌等特异性真菌标志物，并探讨其与皮肤炎症及免疫应答的潜在关联机制。
+    </p>
+    <a class="doi" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11227279/" target="_blank">
+      https://pmc.ncbi.nlm.nih.gov/articles/PMC11227279/
+    </a>
+  </div>
+
+</div>
+
+<!-- ========== 临床 / 感染 ========== -->
+<div class="section-title">🏥 临床与感染（Clinical &amp; Infectious Disease）</div>
+<div class="grid">
+
+  <div class="card clinical">
+    <span class="journal-tag tag-eid">Emerging Infectious Diseases (CDC)</span>
+    <h3>Metagenomic Identification of Fusarium solani Strain as Cause of US Fungal Meningitis Outbreak Associated with Surgical Procedures in Mexico, 2023</h3>
+    <div class="authors">Chow et al.</div>
+    <div class="year-if">
+      <span class="pill pill-year">2025</span>
+      <span class="pill pill-if">IF ≈ 11.8</span>
+      <span class="pill pill-type">宏基因组溯源分析</span>
+    </div>
+    <p class="abstract">
+      利用宏基因组下一代测序（mNGS）对 2023 年墨西哥手术相关美国输入性真菌性脑膜炎疫情
+      进行病原溯源，通过全基因组系统发育分析确认致病株为 Fusarium solani，
+      展示 mNGS 在真菌暴发溯源中的精准能力。
+    </p>
+    <a class="doi" href="https://wwwnc.cdc.gov/eid/article/31/5/24-1657_article" target="_blank">
+      https://wwwnc.cdc.gov/eid/article/31/5/24-1657_article
+    </a>
+  </div>
+
+  <div class="card clinical">
+    <span class="journal-tag tag-pmc">PMC 2025</span>
+    <h3>Shotgun metagenomics reveals antibiotic resistome dynamics and metabolic specialization in fungal-dominated microbiomes</h3>
+    <div class="authors">Grigorescu et al.</div>
+    <div class="year-if">
+      <span class="pill pill-year">2025</span>
+      <span class="pill pill-if">—</span>
+      <span class="pill pill-type">耐药组 + 功能分析</span>
+    </div>
+    <p class="abstract">
+      对真菌主导的微生物组进行高通量鸟枪法宏基因组测序，
+      系统解析其分类组成、功能潜力及抗生素耐药基因（ARG）动态，
+      揭示真菌富集微生物组中独特的代谢专化模式与耐药组特征。
+    </p>
+    <a class="doi" href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12741054/" target="_blank">
+      https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12741054/
+    </a>
+  </div>
+
+</div>
+
+<!-- ========== 生态环境 ========== -->
+<div class="section-title">🌿 生态环境（Environmental &amp; Ecological Metagenomics）</div>
+<div class="grid">
+
+  <div class="card ecology">
+    <span class="journal-tag tag-lno">Limnology &amp; Oceanography</span>
+    <h3>Aquatic fungal diversity assessment through metagenomics is still limited to current databases</h3>
+    <div class="authors">Sanyal et al.</div>
+    <div class="year-if">
+      <span class="pill pill-year">2025</span>
+      <span class="pill pill-if">IF ≈ 4.5</span>
+      <span class="pill pill-type">水生生态多样性分析</span>
+    </div>
+    <p class="abstract">
+      系统评估基于宏基因组学的水生真菌多样性研究现状，揭示当前参考数据库严重制约
+      水生环境真菌物种鉴定的核心瓶颈，并对比多种生物信息学策略在未知水生真菌
+      分类上的性能差异，为水生真菌多样性研究提供方法学参考。
+    </p>
+    <a class="doi" href="https://aslopubs.onlinelibrary.wiley.com/doi/10.1002/lno.70205" target="_blank">
+      https://aslopubs.onlinelibrary.wiley.com/doi/10.1002/lno.70205
+    </a>
+  </div>
+
+  <div class="card ecology">
+    <span class="journal-tag tag-pmc">Frontiers in Microbiology / PMC</span>
+    <h3>Metagenomic analysis of fungal assemblages at a regional scale in high-altitude temperate forest soils: alternative methods to determine diversity, composition and environmental drivers</h3>
+    <div class="authors">Sánchez-García et al.</div>
+    <div class="year-if">
+      <span class="pill pill-year">2025</span>
+      <span class="pill pill-if">IF ≈ 5.2</span>
+      <span class="pill pill-type">土壤生态 + 驱动因子</span>
+    </div>
+    <p class="abstract">
+      采用环境宏基因组学对墨西哥中央高地高海拔温带森林土壤真菌群落进行区域尺度分析，
+      比较多种宏基因组方法的效果，鉴定 pH、钙、镁及粉粒含量为土壤真菌群落空间分布的
+      共同驱动因子，植被类型和地理位置同样显著影响真菌多样性格局。
+    </p>
+    <a class="doi" href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11700497/" target="_blank">
+      https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11700497/
+    </a>
+  </div>
+
+  <div class="card ecology">
+    <span class="journal-tag tag-pmc">Fungal Biology / PMC</span>
+    <h3>Fungal diversity and function in metagenomes sequenced from extreme environments</h3>
+    <div class="authors">Sinha et al.</div>
+    <div class="year-if">
+      <span class="pill pill-year">2024</span>
+      <span class="pill pill-if">IF ≈ 3.8</span>
+      <span class="pill pill-type">极端环境功能分析</span>
+    </div>
+    <p class="abstract">
+      系统挖掘来自极端环境（高温、高盐、高压、高辐射等）的公开宏基因组数据集，
+      解析真菌多样性组成与功能潜力（酶系统、次级代谢产物），
+      揭示极端环境真菌在生物技术应用中的独特价值。
+    </p>
+    <a class="doi" href="https://www.sciencedirect.com/science/article/pii/S1754504824000540" target="_blank">
+      https://www.sciencedirect.com/science/article/pii/S1754504824000540
+    </a>
+  </div>
+
+</div>
+
+<footer>
+  文献检索范围：2023–2025 &nbsp;|&nbsp; 类型筛选：分析类（已排除软件/工具开发类）&nbsp;|&nbsp; 数据来源：PubMed / Nature / Cell / ScienceDirect &nbsp;|&nbsp; 由 Claude Code 自动整理
+</footer>
+
+
+<script>
+  // badge 错开出现
+  document.querySelectorAll('.badge').forEach((el, i) => {
+    el.style.animationDelay = (0.15 + i * 0.1) + 's';
+  });
+
+  // 卡片 + section-title 滚动入场
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08 });
+
+  // section title
+  document.querySelectorAll('.section-title').forEach(el => observer.observe(el));
+
+  // cards: 同一 grid 内错开延迟
+  document.querySelectorAll('.grid').forEach(grid => {
+    grid.querySelectorAll('.card').forEach((card, i) => {
+      card.style.transitionDelay = (i * 0.08) + 's';
+      observer.observe(card);
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Route Switcher - 校园网智能分流工具</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei UI", sans-serif; background: #f0f2f5; color: #1e242e; line-height: 1.6; }
+        .container { max-width: 960px; margin: 0 auto; padding: 32px 20px; }
+        .hero { text-align: center; padding: 48px 0 36px; }
+        .hero h1 { font-size: 2.2em; color: #246cb4; margin-bottom: 12px; }
+        .hero p { font-size: 1.15em; color: #646e7d; }
+        .card { background: #fff; border: 1px solid #dae0e4; border-radius: 8px; padding: 28px; margin-bottom: 24px; }
+        .card h2 { font-size: 1.25em; margin-bottom: 14px; color: #1e242e; }
+        .card p, .card li { color: #444; font-size: 0.95em; }
+        .card ul { padding-left: 20px; }
+        .card li { margin-bottom: 8px; }
+        .screenshot { text-align: center; margin: 28px 0; }
+        .screenshot img { max-width: 100%; border: 1px solid #dae0e4; border-radius: 6px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+        .screenshot figcaption { margin-top: 10px; color: #646e7d; font-size: 0.9em; }
+        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+        .feature-item { background: #f8f9fc; border: 1px solid #e8eaef; border-radius: 6px; padding: 18px; }
+        .feature-item h3 { font-size: 1em; color: #246cb4; margin-bottom: 6px; }
+        .feature-item p { font-size: 0.88em; color: #555; }
+        .download-btn { display: inline-block; background: #246cb4; color: #fff; padding: 14px 36px; border-radius: 6px; text-decoration: none; font-size: 1.05em; font-weight: 600; transition: background 0.2s; }
+        .download-btn:hover { background: #1c5896; }
+        .download-section { text-align: center; padding: 24px 0; }
+        .tag { display: inline-block; background: #e8f0fe; color: #246cb4; font-size: 0.8em; padding: 2px 10px; border-radius: 10px; margin-left: 8px; }
+        .steps { counter-reset: step; }
+        .steps li { list-style: none; counter-increment: step; position: relative; padding-left: 32px; margin-bottom: 12px; }
+        .steps li::before { content: counter(step); position: absolute; left: 0; top: 0; width: 22px; height: 22px; background: #246cb4; color: #fff; border-radius: 50%; font-size: 0.78em; text-align: center; line-height: 22px; }
+        .footer { text-align: center; color: #999; font-size: 0.82em; padding: 32px 0 16px; }
+        code { background: #f0f2f5; padding: 2px 6px; border-radius: 3px; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+<div style="background:#fff;padding:0.8em 1.5em;border-bottom:1px solid #e9d8fd;display:flex;align-items:center;gap:1em;position:sticky;top:0;z-index:100;">
+    <a href="/blog/" style="color:#553c9a;text-decoration:none;font-size:0.95em;">← 返回博客</a>
+    <span style="color:#718096;font-size:0.85em;">流光镜影</span>
+</div>
+<div class="container">
+    <div class="hero">
+        <h1>Campus Route Switcher</h1>
+        <p>校园网智能分流工具 &mdash; 服务器走校园网，默认流量走手机共享网络</p>
+    </div>
+
+    <div class="screenshot">
+        <figure>
+            <img src="ScreenShot_2026-07-04_010856_972.png" alt="Campus Route Switcher 主界面截图">
+            <figcaption>软件主界面</figcaption>
+        </figure>
+    </div>
+
+    <div class="card">
+        <h2>这是什么？</h2>
+        <p>如果你同时拥有<strong>校园网</strong>和<strong>手机共享网络</strong>两块网卡，Campus Route Switcher 可以让指定服务器（如教务系统、SSH 等）走校园网，而日常上网流量走手机网络，实现自动分流，无需手动切换。</p>
+    </div>
+
+    <div class="card">
+        <h2>核心功能</h2>
+        <div class="features">
+            <div class="feature-item">
+                <h3>智能路由分流</h3>
+                <p>为每台服务器添加 /32 精确路由，指向校园网网关；默认流量通过手机网卡的低跃点数优先出口。</p>
+            </div>
+            <div class="feature-item">
+                <h3>自动检测网卡</h3>
+                <p>自动识别 WLAN 校园网卡和以太网手机共享网卡，检测网关地址，一键完成配置。</p>
+            </div>
+            <div class="feature-item">
+                <h3>Clash 规则检测</h3>
+                <p>扫描本地 Clash Verge Rev 配置文件，确认服务器 IP 是否有 DIRECT 规则，避免代理绕路。</p>
+            </div>
+            <div class="feature-item">
+                <h3>分流判定</h3>
+                <p>自动测试服务器连通性和出口网卡，判定分流是否生效，兼容 TUN 模式。</p>
+            </div>
+            <div class="feature-item">
+                <h3>托盘常驻与自动恢复</h3>
+                <p>最小化到系统托盘，检测到网络变化后自动重新应用路由，无需手动操作。</p>
+            </div>
+            <div class="feature-item">
+                <h3>永久路由支持</h3>
+                <p>可选保存为永久路由，重启后依然生效；也可随时恢复默认设置。</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>使用方法</h2>
+        <ol class="steps">
+            <li>解压下载的压缩包，运行 <code>CampusRouteSwitcher.exe</code>（需要<strong>管理员权限</strong>）。</li>
+            <li>点击<strong>「自动检测网卡」</strong>，软件会识别校园网和手机共享网卡。</li>
+            <li>在<strong>服务器</strong>列表中添加需要走校园网的服务器 IP 地址。</li>
+            <li>点击<strong>「应用分流」</strong>，完成路由配置。</li>
+            <li>（可选）开启<strong>「托盘常驻，网络变化后自动重新应用」</strong>，最小化到托盘即可。</li>
+        </ol>
+    </div>
+
+    <div class="card">
+        <h2>系统要求</h2>
+        <ul>
+            <li>Windows 10 / 11</li>
+            <li><strong>.NET 10.0 运行时</strong> &mdash; <a href="https://dotnet.microsoft.com/download/dotnet/10.0" target="_blank">点击下载</a></li>
+            <li>管理员权限（添加/删除系统路由需要）</li>
+            <li>至少两块活跃网卡（校园网 + 手机共享网络）</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>配置说明</h2>
+        <ul>
+            <li><strong>校园网网关</strong> &mdash; 校园网的默认网关地址（如 <code>210.35.132.1</code>），自动检测可填入。</li>
+            <li><strong>校园网网卡 / 手机共享网卡</strong> &mdash; 从下拉列表选择或手动输入网卡名称。</li>
+            <li><strong>跃点数</strong> &mdash; 手机网卡设较低值（如 10），校园网设较高值（如 50），使手机网络成为默认出口。</li>
+            <li><strong>永久路由</strong> &mdash; 勾选后路由写入系统持久表，重启不丢失。</li>
+        </ul>
+    </div>
+
+    <div class="download-section">
+        <a class="download-btn" href="https://mega.nz/file/IuEQCI4L#bWLwm1MUowkQ88dbxH0k-nTDvXPL8DxOOiWgiA3IHqc" target="_blank">下载 Campus Route Switcher</a>
+    </div>
+
+    <div class="footer">
+        Campus Route Switcher v2 &mdash; 开源校园网分流工具
+    </div>
+</div>
+</body>
+</html>
